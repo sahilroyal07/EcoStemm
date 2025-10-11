@@ -1,4 +1,4 @@
-// Environment configuration for cross-platform compatibility - Updated for deployment
+// Environment configuration for cross-platform compatibility - Cache bust v2
 const config = {
   development: {
     serverUrl: 'http://localhost:5002',
