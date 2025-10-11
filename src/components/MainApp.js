@@ -259,8 +259,11 @@ const MainApp = ({ onLogout }) => {
           return true;
         });
       });
-      setRetrieveCode("");
-      setIsRetrieveOpen(false);
+      // Only close modal and clear code if successful
+      if (newRecent.length > 0) {
+        setRetrieveCode("");
+        setIsRetrieveOpen(false);
+      }
     } catch (err) {
       console.error('Retrieve error:', err);
       setRetrieveError(err.message || "No content found for this code.");
@@ -749,8 +752,15 @@ const MainApp = ({ onLogout }) => {
 
   const RetrieveModal = React.memo(() => {
     const handleCodeChange = React.useCallback((e) => {
+      e.stopPropagation();
       const value = e.target.value.toUpperCase().slice(0, 6);
       setRetrieveCode(value);
+    }, []);
+
+    const handlePaste = React.useCallback((e) => {
+      e.stopPropagation();
+      const pastedText = e.clipboardData.getData('text').toUpperCase().slice(0, 6);
+      setRetrieveCode(pastedText);
     }, []);
 
     return (
@@ -766,6 +776,7 @@ const MainApp = ({ onLogout }) => {
               placeholder="e.g. 7BL29Y"
               value={retrieveCode}
               onChange={handleCodeChange}
+              onPaste={handlePaste}
               maxLength="6"
               autoComplete="off"
             />
