@@ -882,7 +882,7 @@ const MainApp = ({ onLogout }) => {
         </div>
       </div>
     );
-  });
+  };
 
   const UploadedBar = () => (
     <div className="uploaded-bar">
