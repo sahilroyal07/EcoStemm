@@ -12,6 +12,8 @@ export const uploadToCloudinary = async (file, code) => {
   formData.append("upload_preset", UPLOAD_PRESET);
   formData.append("tags", `code_${code}`);
   formData.append("context", `access_code=${code}`);
+  formData.append("resource_type", "auto");
+  formData.append("type", "upload");
 
   try {
     const res = await axios.post(CLOUDINARY_URL, formData, {
