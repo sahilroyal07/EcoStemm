@@ -79,13 +79,23 @@ export const getFilesByCode = async (code) => {
   try {
     const res = await axios.get(`${SERVER_URL}/api/files/${code}`);
     
-    // Validate response structure
-    if (!res.data || !res.data.files) {
-      throw new Error("Invalid response format");
+    console.log('Server response:', res.data); // Debug log
+    
+    // Handle different response formats
+    let files = [];
+    if (res.data && res.data.files) {
+      files = res.data.files;
+    } else if (Array.isArray(res.data)) {
+      files = res.data;
+    } else {
+      console.error('Unexpected response format:', res.data);
+      return [];
     }
     
     // Ensure files is an array and add safety checks
-    const files = Array.isArray(res.data.files) ? res.data.files : [];
+    if (!Array.isArray(files)) {
+      files = [];
+    }
     
     // Add default properties to prevent undefined errors
     return files.map(file => ({
@@ -98,7 +108,7 @@ export const getFilesByCode = async (code) => {
       sizeMB: file.size ? (file.size / (1024 * 1024)).toFixed(2) : '0'
     }));
   } catch (err) {
-    console.error("Retrieval failed:", err.message);
+    console.error("Retrieval failed:", err);
     throw new Error("No file found for this code.");
   }
 };
