@@ -580,14 +580,26 @@ const MainApp = ({ onLogout }) => {
         )}
 
         <div className="modal-actions">
-          <button onClick={handleUpload} disabled={isUploading || uploadFiles.length === 0}>{isUploading ? 'Uploading...' : 'Upload'}</button>
-          <button className="cancel" onClick={() => { 
-            setIsUploadOpen(false); 
-            setGeneratedCode(""); 
-            setQrCodeImage('');
-            setUploadFiles([]); 
-            setUploadProgress(0); 
-          }}>Close</button>
+          {!generatedCode ? (
+            <>
+              <button onClick={handleUpload} disabled={isUploading || uploadFiles.length === 0}>{isUploading ? 'Uploading...' : 'Upload'}</button>
+              <button className="cancel" onClick={() => { 
+                setIsUploadOpen(false); 
+                setGeneratedCode(""); 
+                setQrCodeImage('');
+                setUploadFiles([]); 
+                setUploadProgress(0); 
+              }}>Cancel</button>
+            </>
+          ) : (
+            <button className="cancel" onClick={() => { 
+              setIsUploadOpen(false); 
+              setGeneratedCode(""); 
+              setQrCodeImage('');
+              setUploadFiles([]); 
+              setUploadProgress(0); 
+            }}>Done</button>
+          )}
         </div>
       </div>
     </div>
