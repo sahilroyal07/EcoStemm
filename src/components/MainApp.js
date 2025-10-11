@@ -331,6 +331,24 @@ const MainApp = ({ onLogout }) => {
     });
   };
 
+  const handleDownload = async (url, filename) => {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = filename || 'download';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error('Download failed:', error);
+      window.open(url, '_blank');
+    }
+  };
+
   const StorageBlock = () => {
     const percentage = getStoragePercentage();
     const remaining = getRemainingStorageGB();
@@ -451,9 +469,9 @@ const MainApp = ({ onLogout }) => {
               <a href={file.url} target="_blank" rel="noopener noreferrer" className="btn view">
                 View
               </a>
-              <a href={file.url} download={file.filename} className="btn download">
+              <button className="btn download" onClick={() => handleDownload(file.url, file.filename)}>
                 Download
-              </a>
+              </button>
             </>
           )}
 
@@ -635,8 +653,12 @@ const MainApp = ({ onLogout }) => {
             <button className="cancel" onClick={() => { 
               setIsUploadOpen(false); 
               setUploadFiles([]); 
-              setUploadProgress(0); 
-            }}>Keep Code & Close</button>
+              setUploadProgress(0);
+              setGeneratedCode("");
+              setQrCodeImage("");
+              localStorage.removeItem('generatedCode');
+              localStorage.removeItem('qrCodeImage');
+            }}>Close</button>
           )}
         </div>
       </div>
@@ -857,7 +879,7 @@ const MainApp = ({ onLogout }) => {
                       ) : (
                         <>
                           <a href={file.url} target="_blank" rel="noopener noreferrer" className="btn-small">View</a>
-                          <a href={file.url} download={file.filename} className="btn-small">Download</a>
+                          <button className="btn-small" onClick={() => handleDownload(file.url, file.filename)}>Download</button>
                         </>
                       )}
                     </div>
@@ -935,7 +957,13 @@ const MainApp = ({ onLogout }) => {
                 className="action-btn upload"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={() => setIsUploadOpen(true)}
+                onClick={() => {
+                  setGeneratedCode("");
+                  setQrCodeImage("");
+                  localStorage.removeItem('generatedCode');
+                  localStorage.removeItem('qrCodeImage');
+                  setIsUploadOpen(true);
+                }}
               >
                 <Upload size={18} />
                 <span>Upload Files</span>
