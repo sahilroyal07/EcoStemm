@@ -79,33 +79,21 @@ export const getFilesByCode = async (code) => {
   try {
     const res = await axios.get(`${SERVER_URL}/api/files/${code}`);
     
-    console.log('Server response:', res.data); // Debug log
+    console.log('Full response:', res); // Debug log
+    console.log('Response data:', res.data); // Debug log
     
-    // Handle different response formats
-    let files = [];
-    if (res.data && res.data.files) {
-      files = res.data.files;
-    } else if (Array.isArray(res.data)) {
-      files = res.data;
-    } else {
-      console.error('Unexpected response format:', res.data);
-      return [];
-    }
-    
-    // Ensure files is an array and add safety checks
-    if (!Array.isArray(files)) {
-      files = [];
-    }
+    // Just return the files array from response
+    const files = res.data?.files || [];
     
     // Add default properties to prevent undefined errors
     return files.map(file => ({
-      url: file.url || null,
-      filename: file.filename || 'Unknown file',
-      public_id: file.public_id || null,
-      content: file.content || null,
-      type: file.type || 'file',
-      size: file.size || 0,
-      sizeMB: file.size ? (file.size / (1024 * 1024)).toFixed(2) : '0'
+      url: file?.url || null,
+      filename: file?.filename || 'Unknown file',
+      public_id: file?.public_id || null,
+      content: file?.content || null,
+      type: file?.type || 'file',
+      size: file?.size || 0,
+      sizeMB: file?.size ? (file.size / (1024 * 1024)).toFixed(2) : '0'
     }));
   } catch (err) {
     console.error("Retrieval failed:", err);
