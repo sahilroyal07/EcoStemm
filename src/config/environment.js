@@ -6,7 +6,7 @@ const config = {
     cloudinaryUploadPreset: 'ml_default'
   },
   production: {
-    serverUrl: 'https://your-render-app-name.onrender.com', // Replace with your Render URL
+    serverUrl: 'https://ecosystem-file-share-2.onrender.com', // Replace with your Render URL
     cloudinaryCloudName: 'dzngaquws',
     cloudinaryUploadPreset: 'ml_default'
   }
