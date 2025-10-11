@@ -232,18 +232,20 @@ const MainApp = ({ onLogout }) => {
       setRetrieveError("");
       const filesFound = await getFilesByCode(retrieveCode);
       
-      // Safely handle the response
-      if (!filesFound || !Array.isArray(filesFound)) {
-        throw new Error("Invalid response format");
-      }
+      // Handle any response format
+      console.log('Files found:', filesFound);
       
-      const newRecent = filesFound.map((f) => ({
+      // Ensure filesFound is an array
+      const fileArray = Array.isArray(filesFound) ? filesFound : [];
+      
+      const newRecent = fileArray.map((f) => ({
         ...f,
         code: retrieveCode,
-        filename: f.filename || 'Unknown file',
-        url: f.url || null,
-        content: f.content || null,
-        type: f.type || 'file'
+        filename: f?.filename || f?.public_id || 'Unknown file',
+        url: f?.url || f?.secure_url || null,
+        content: f?.content || null,
+        type: f?.type || f?.resource_type || 'file',
+        size: f?.size || f?.bytes || 0
       }));
       
       setRecentFiles((r) => {
