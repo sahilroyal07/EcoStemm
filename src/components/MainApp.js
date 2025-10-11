@@ -259,10 +259,10 @@ const MainApp = ({ onLogout }) => {
           return true;
         });
       });
-      // Only close modal and clear code if successful
+      // Only close modal if files were successfully retrieved
       if (newRecent.length > 0) {
-        setRetrieveCode("");
         setIsRetrieveOpen(false);
+        // Don't clear the code in case user wants to try again
       }
     } catch (err) {
       console.error('Retrieve error:', err);
@@ -786,7 +786,11 @@ const MainApp = ({ onLogout }) => {
             <button className="retrieve-btn" onClick={handleRetrieve} disabled={retrieveLoading || !retrieveCode}>
               {retrieveLoading ? 'Searching…' : 'Retrieve'}
             </button>
-            <button className="cancel" onClick={() => { setIsRetrieveOpen(false); setRetrieveError(""); }}>Cancel</button>
+            <button className="cancel" onClick={() => { 
+              setIsRetrieveOpen(false); 
+              setRetrieveError(""); 
+              setRetrieveCode(""); // Only clear code when user manually closes
+            }}>Cancel</button>
           </div>
         </div>
       </div>
