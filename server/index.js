@@ -285,7 +285,7 @@ app.delete('/api/storage/clear', authenticateToken, async (req, res) => {
 const multer = require('multer');
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 100 * 1024 * 1024 } });
 
-app.post('/api/upload', authenticateToken, upload.single('file'), async (req, res) => {
+app.post('/api/upload', authenticateToken, upload.single('file'), (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded' });
@@ -294,7 +294,7 @@ app.post('/api/upload', authenticateToken, upload.single('file'), async (req, re
     const { code } = req.body;
     const file = req.file;
     
-    const uploadResult = await cloudinary.uploader.upload_stream(
+    const uploadStream = cloudinary.uploader.upload_stream(
       {
         resource_type: 'auto',
         type: 'upload',
@@ -316,7 +316,7 @@ app.post('/api/upload', authenticateToken, upload.single('file'), async (req, re
       }
     );
     
-    uploadResult.end(file.buffer);
+    uploadStream.end(file.buffer);
   } catch (error) {
     console.error('Upload error:', error);
     res.status(500).json({ error: 'Upload failed' });
