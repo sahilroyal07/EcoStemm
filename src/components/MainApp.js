@@ -759,12 +759,11 @@ const MainApp = ({ onLogout }) => {
     );
   });
 
-  const RetrieveModal = React.memo(() => {
-    const handleCodeChange = React.useCallback((e) => {
-      e.stopPropagation();
+  const RetrieveModal = () => {
+    const handleCodeChange = (e) => {
       const value = e.target.value.toUpperCase().slice(0, 6);
       setRetrieveCode(value);
-    }, []);
+    };
 
 
 
