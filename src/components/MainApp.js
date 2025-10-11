@@ -21,6 +21,7 @@ const MainApp = ({ onLogout }) => {
   const [retrieveCode, setRetrieveCode] = useState("");
   const [retrieveLoading, setRetrieveLoading] = useState(false);
   const [retrieveError, setRetrieveError] = useState("");
+  const [retrievedFiles, setRetrievedFiles] = useState([]);
   const [generatedCode, setGeneratedCode] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -248,6 +249,9 @@ const MainApp = ({ onLogout }) => {
         size: f?.size || f?.bytes || 0
       }));
       
+      // Set retrieved files for modal display
+      setRetrievedFiles(newRecent);
+      
       setRecentFiles((r) => {
         const combined = [...newRecent, ...r];
         const seen = new Set();
@@ -259,8 +263,8 @@ const MainApp = ({ onLogout }) => {
           return true;
         });
       });
-      // Close modal after successful retrieval but keep code
-      setIsRetrieveOpen(false);
+      // Keep modal open to show retrieved files
+      // setIsRetrieveOpen(false);
     } catch (err) {
       console.error('Retrieve error:', err);
       setRetrieveError(err.message || "No content found for this code.");
@@ -784,16 +788,65 @@ const MainApp = ({ onLogout }) => {
               autoComplete="off"
             />
             {retrieveError && <div className="error">{retrieveError}</div>}
+            
+            {retrievedFiles.length > 0 && (
+              <div className="retrieved-files">
+                <h4>Retrieved Files ({retrievedFiles.length})</h4>
+                {retrievedFiles.map((file, i) => (
+                  <div key={i} className="retrieved-file">
+                    <div className="file-info">
+                      <span className="file-icon">{file.type === 'text' ? '📝' : getFileIcon(file.filename || '')}</span>
+                      <div className="file-details">
+                        <div className="file-name">{file.type === 'text' ? 'Shared Text' : file.filename}</div>
+                        <div className="file-size">{file.type === 'text' ? `${file.content?.length || 0} chars` : `${(file.size / (1024*1024)).toFixed(2)} MB`}</div>
+                      </div>
+                    </div>
+                    <div className="file-actions">
+                      {file.type === 'text' ? (
+                        <>
+                          <button className="btn-small" onClick={() => {
+                            navigator.clipboard.writeText(file.content);
+                            alert('Text copied!');
+                          }}>Copy</button>
+                          <button className="btn-small" onClick={() => {
+                            const blob = new Blob([file.content], { type: 'text/plain' });
+                            const url = URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = 'shared-text.txt';
+                            a.click();
+                            URL.revokeObjectURL(url);
+                          }}>Download</button>
+                        </>
+                      ) : (
+                        <>
+                          <a href={file.url} target="_blank" rel="noopener noreferrer" className="btn-small">View</a>
+                          <a href={file.url} download={file.filename} className="btn-small">Download</a>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
           <div className="modal-actions">
-            <button className="retrieve-btn" onClick={handleRetrieve} disabled={retrieveLoading || !retrieveCode}>
-              {retrieveLoading ? 'Searching…' : 'Retrieve'}
-            </button>
+            {retrievedFiles.length === 0 ? (
+              <button className="retrieve-btn" onClick={handleRetrieve} disabled={retrieveLoading || !retrieveCode}>
+                {retrieveLoading ? 'Searching…' : 'Retrieve'}
+              </button>
+            ) : (
+              <button className="retrieve-btn" onClick={() => {
+                setRetrievedFiles([]);
+                setRetrieveError("");
+              }}>Search Again</button>
+            )}
             <button className="cancel" onClick={() => { 
               setIsRetrieveOpen(false); 
               setRetrieveError(""); 
-              setRetrieveCode(""); // Only clear code when user manually closes
-            }}>Cancel</button>
+              setRetrieveCode("");
+              setRetrievedFiles([]);
+            }}>Close</button>
           </div>
         </div>
       </div>
