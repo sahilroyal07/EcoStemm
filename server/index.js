@@ -19,11 +19,18 @@ const PORT = process.env.PORT || 5002;
 
 // Middleware
 app.use(cors({
-  origin: [
-    'http://localhost:3000',
-    'https://eco-stemm-ewx3.vercel.app',
-    'https://eco-stemm-ewx3-njczg8zzg-sahilroyal07s-projects.vercel.app'
-  ],
+  origin: function (origin, callback) {
+    // Allow requests with no origin (mobile apps, etc.)
+    if (!origin) return callback(null, true);
+    
+    // Allow localhost and vercel domains
+    if (origin.includes('localhost') || origin.includes('vercel.app')) {
+      return callback(null, true);
+    }
+    
+    // Reject other origins
+    callback(new Error('Not allowed by CORS'));
+  },
   credentials: true
 }));
 app.use(bodyParser.json({ limit: '5gb' }));
