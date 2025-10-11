@@ -322,6 +322,26 @@ app.get('/api/test', (req, res) => {
   res.json({ message: 'Server is running!' });
 });
 
+// Debug route to check Cloudinary
+app.get('/api/debug/:code', async (req, res) => {
+  const { code } = req.params;
+  try {
+    const result = await cloudinary.search
+      .expression(`tags:code_${code}`)
+      .with_field('context')
+      .max_results(100)
+      .execute();
+    
+    res.json({ 
+      searchExpression: `tags:code_${code}`,
+      totalCount: result.total_count,
+      resources: result.resources 
+    });
+  } catch (error) {
+    res.json({ error: error.message });
+  }
+});
+
 // Admin route to delete users (developer only)
 app.delete('/api/admin/users/:email', authenticateToken, async (req, res) => {
   try {
