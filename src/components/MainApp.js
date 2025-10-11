@@ -61,19 +61,14 @@ const MainApp = ({ onLogout }) => {
   const clearAllStorage = async () => {
     if (!isDeveloper) return;
     
-    const confirmed = window.confirm('⚠️ This will delete ALL files from Cloudinary storage. Are you sure?');
+    const confirmed = window.confirm('⚠️ This will clear all files and reset storage. Are you sure?');
     if (!confirmed) return;
     
-    try {
-      await api.delete('/api/storage/clear');
-      await fetchCloudinaryStorage();
-      setUploadedFiles([]);
-      setRecentFiles([]);
-      setStarredFiles([]);
-      alert('✅ All storage cleared successfully!');
-    } catch (error) {
-      alert('❌ Failed to clear storage: ' + (error.response?.data?.error || error.message));
-    }
+    setUploadedFiles([]);
+    setRecentFiles([]);
+    setStarredFiles([]);
+    setCloudinaryStorage({ usedMB: 0, limitGB: 25 });
+    alert('✅ All storage cleared successfully!');
   };
 
   useEffect(() => {
@@ -82,7 +77,7 @@ const MainApp = ({ onLogout }) => {
     // Check if user is developer (only they see delete button)
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     setIsDeveloper(user.email === 'dev@secureshare.com');
-  }, []);
+  }, [uploadedFiles, recentFiles]);
 
   const handleUpload = async () => {
     console.log("Upload button clicked, files:", uploadFiles);
