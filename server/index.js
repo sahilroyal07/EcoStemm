@@ -157,11 +157,24 @@ app.post('/api/register', authenticateToken, async (req, res) => {
   }
 
   try {
+    console.log(`📝 Registering code ${code} with files:`, files);
+    
     // Store metadata in Cloudinary for each file
     for (const file of files) {
       if (file.public_id) {
-        await cloudinary.uploader.add_tag(`code_${code}`, file.public_id);
-        await cloudinary.uploader.add_context(`access_code=${code}|user_id=${req.user.userId}|created_at=${new Date().toISOString()}`, file.public_id);
+        console.log(`🏷️ Adding tag code_${code} to ${file.public_id}`);
+        
+        try {
+          await cloudinary.uploader.add_tag(`code_${code}`, file.public_id);
+          console.log(`✅ Tag added successfully to ${file.public_id}`);
+          
+          await cloudinary.uploader.add_context(`access_code=${code}|user_id=${req.user.userId}|created_at=${new Date().toISOString()}`, file.public_id);
+          console.log(`✅ Context added successfully to ${file.public_id}`);
+        } catch (tagError) {
+          console.error(`❌ Error tagging ${file.public_id}:`, tagError);
+        }
+      } else {
+        console.log(`⚠️ File missing public_id:`, file);
       }
     }
     
