@@ -416,9 +416,7 @@ app.delete('/api/admin/users/:email', authenticateToken, async (req, res) => {
 
 
 
-let server;
-
-app.listen(PORT, async () => {
+const server = app.listen(PORT, async () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
   
   // Create default users only if they don't exist
@@ -455,29 +453,19 @@ app.listen(PORT, async () => {
   users.forEach(user => {
     console.log(`- User: ${user.email} (ID: ${user.id})`);
   });
-}).on('listening', function() {
-  server = this;
 });
 
 // Graceful shutdown
 process.on('SIGTERM', () => {
   console.log('SIGTERM received, shutting down gracefully');
-  if (server) {
-    server.close(() => {
-      process.exit(0);
-    });
-  } else {
+  server.close(() => {
     process.exit(0);
-  }
+  });
 });
 
 process.on('SIGINT', () => {
   console.log('SIGINT received, shutting down gracefully');
-  if (server) {
-    server.close(() => {
-      process.exit(0);
-    });
-  } else {
+  server.close(() => {
     process.exit(0);
-  }
+  });
 });
