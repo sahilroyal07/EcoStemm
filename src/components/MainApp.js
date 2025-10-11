@@ -590,8 +590,6 @@ const MainApp = ({ onLogout }) => {
               <button onClick={handleUpload} disabled={isUploading || uploadFiles.length === 0}>{isUploading ? 'Uploading...' : 'Upload'}</button>
               <button className="cancel" onClick={() => { 
                 setIsUploadOpen(false); 
-                setGeneratedCode(""); 
-                setQrCodeImage('');
                 setUploadFiles([]); 
                 setUploadProgress(0); 
               }}>Cancel</button>
@@ -599,11 +597,9 @@ const MainApp = ({ onLogout }) => {
           ) : (
             <button className="cancel" onClick={() => { 
               setIsUploadOpen(false); 
-              setGeneratedCode(""); 
-              setQrCodeImage('');
               setUploadFiles([]); 
               setUploadProgress(0); 
-            }}>Done</button>
+            }}>Keep Code & Close</button>
           )}
         </div>
       </div>
@@ -908,36 +904,7 @@ const MainApp = ({ onLogout }) => {
                 <span>Upload Files</span>
               </motion.button>
 
-              <motion.button
-                className="action-btn retrieve"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => setIsRetrieveOpen(true)}
-              >
-                <Download size={18} />
-                <span>Enter Code</span>
-              </motion.button>
-              
-              <motion.button
-                className="action-btn qr-scan"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => setIsQRScanOpen(true)}
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <rect x="3" y="3" width="5" height="5"/>
-                  <rect x="16" y="3" width="5" height="5"/>
-                  <rect x="3" y="16" width="5" height="5"/>
-                  <path d="M21 16h-3a2 2 0 0 0-2 2v3"/>
-                  <path d="M21 21v.01"/>
-                  <path d="M12 7v3a2 2 0 0 1-2 2H7"/>
-                  <path d="M3 12h.01"/>
-                  <path d="M12 3h.01"/>
-                  <path d="M12 16v.01"/>
-                  <path d="M16 12h1"/>
-                </svg>
-                <span>Scan QR Code</span>
-              </motion.button>
+
               
               <motion.button
                 className="action-btn text-share"
@@ -960,6 +927,40 @@ const MainApp = ({ onLogout }) => {
             <div className="main-grid">
               {/* Left Column - File Sections */}
               <div className="files-column">
+                {generatedCode && (
+                  <motion.section
+                    className="file-section generated-code-section"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <div className="section-header">
+                      <div style={{fontSize: '24px'}}>🔑</div>
+                      <h3>Your Access Code</h3>
+                    </div>
+                    <div className="code-display">
+                      <div className="code-box-large">
+                        <span className="code-text-large">{generatedCode}</span>
+                        <button
+                          className="copy-btn-large"
+                          onClick={async () => {
+                            try { 
+                              await navigator.clipboard.writeText(generatedCode);
+                              alert('Code copied!');
+                            } catch {}
+                          }}
+                        >Copy Code</button>
+                      </div>
+                      {qrCodeImage && (
+                        <div className="qr-display">
+                          <img src={qrCodeImage} alt="QR Code" className="qr-code-dashboard" />
+                          <p>Share this code or QR to access files</p>
+                        </div>
+                      )}
+                    </div>
+                  </motion.section>
+                )}
+
                 <motion.section
                   className="file-section"
                   initial={{ opacity: 0, y: 20 }}
@@ -968,44 +969,21 @@ const MainApp = ({ onLogout }) => {
                 >
                   <div className="section-header">
                     <Clock size={20} />
-                    <h3>Recent Files</h3>
+                    <h3>Recent Uploads</h3>
                   </div>
                   <div className="file-list">
                     <AnimatePresence>
-                      {recentFiles?.length ? (
-                        recentFiles.map((file, i) => (
+                      {uploadedFiles?.length ? (
+                        uploadedFiles.map((file, i) => (
                           <FileCard 
                             key={file.url || i} 
                             file={file} 
-                            onDelete={handleDeleteRecent}
-                            showStar={true}
+                            onDelete={handleRemoveUploaded}
+                            showStar={false}
                           />
                         ))
                       ) : (
-                        <p className="empty-state">No recent files yet</p>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                </motion.section>
-
-                <motion.section
-                  className="file-section"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.1 }}
-                >
-                  <div className="section-header">
-                    <Star size={20} color="#facc15" />
-                    <h3>Starred Files</h3>
-                  </div>
-                  <div className="file-list">
-                    <AnimatePresence>
-                      {starredFiles?.length ? (
-                        starredFiles.map((file, i) => (
-                          <FileCard key={file.url || i} file={file} />
-                        ))
-                      ) : (
-                        <p className="empty-state">No starred files yet</p>
+                        <p className="empty-state">No uploads yet</p>
                       )}
                     </AnimatePresence>
                   </div>
@@ -1025,12 +1003,7 @@ const MainApp = ({ onLogout }) => {
       </div>
 
       {/* Modals */}
-      {isUploadOpen && (() => {
-        console.log("Rendering UploadModal");
-        return <UploadModal />;
-      })()}
-      {isRetrieveOpen && <RetrieveModal />}
-      {isQRScanOpen && <QRScanModal />}
+      {isUploadOpen && <UploadModal />}
       {isTextUploadOpen && <TextUploadModal />}
     </div>
   );
