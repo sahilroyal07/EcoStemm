@@ -767,14 +767,7 @@ const MainApp = ({ onLogout }) => {
       setRetrieveCode(value);
     }, []);
 
-    const handlePaste = React.useCallback((e) => {
-      // Let the default paste behavior work, then process the result
-      setTimeout(() => {
-        const input = e.target;
-        const value = input.value.toUpperCase().slice(0, 6);
-        setRetrieveCode(value);
-      }, 0);
-    }, []);
+
 
     return (
       <div className="modal">
@@ -789,7 +782,6 @@ const MainApp = ({ onLogout }) => {
               placeholder="e.g. 7BL29Y"
               value={retrieveCode}
               onChange={handleCodeChange}
-              onPaste={handlePaste}
               maxLength="6"
               autoComplete="off"
             />
