@@ -466,9 +466,9 @@ const MainApp = ({ onLogout }) => {
             </>
           ) : (
             <>
-              <a href={file.url} target="_blank" rel="noopener noreferrer" className="btn view">
+              <button className="btn view" onClick={() => window.open(file.url, '_blank')}>
                 View
-              </a>
+              </button>
               <button className="btn download" onClick={() => handleDownload(file.url, file.filename)}>
                 Download
               </button>
@@ -878,7 +878,7 @@ const MainApp = ({ onLogout }) => {
                         </>
                       ) : (
                         <>
-                          <a href={file.url} target="_blank" rel="noopener noreferrer" className="btn-small">View</a>
+                          <button className="btn-small" onClick={() => window.open(file.url, '_blank')}>View</button>
                           <button className="btn-small" onClick={() => handleDownload(file.url, file.filename)}>Download</button>
                         </>
                       )}
