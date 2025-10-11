@@ -22,13 +22,17 @@ const MainApp = ({ onLogout }) => {
   const [retrieveLoading, setRetrieveLoading] = useState(false);
   const [retrieveError, setRetrieveError] = useState("");
   const [retrievedFiles, setRetrievedFiles] = useState([]);
-  const [generatedCode, setGeneratedCode] = useState("");
+  const [generatedCode, setGeneratedCode] = useState(() => {
+    return localStorage.getItem('generatedCode') || "";
+  });
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isDragActive, setIsDragActive] = useState(false);
   const [isQRScanOpen, setIsQRScanOpen] = useState(false);
   const [qrCodeData, setQrCodeData] = useState('');
-  const [qrCodeImage, setQrCodeImage] = useState('');
+  const [qrCodeImage, setQrCodeImage] = useState(() => {
+    return localStorage.getItem('qrCodeImage') || '';
+  });
   const [scannerEnabled, setScannerEnabled] = useState(false);
   const [scanError, setScanError] = useState('');
   const videoRef = useRef(null);
@@ -117,6 +121,7 @@ const MainApp = ({ onLogout }) => {
       setUploadFiles([]);
       setUploadProgress(100);
       setGeneratedCode(code);
+      localStorage.setItem('generatedCode', code);
       
       // Generate QR code
       try {
@@ -129,6 +134,7 @@ const MainApp = ({ onLogout }) => {
           }
         });
         setQrCodeImage(qrDataURL);
+        localStorage.setItem('qrCodeImage', qrDataURL);
       } catch (error) {
         console.error('QR code generation failed:', error);
       }
@@ -213,7 +219,9 @@ const MainApp = ({ onLogout }) => {
       });
       
       setQrCodeImage(qrDataURL);
+      localStorage.setItem('qrCodeImage', qrDataURL);
       setGeneratedCode(code);
+      localStorage.setItem('generatedCode', code);
       setTextContent('');
       setIsTextUploadOpen(false);
       setIsUploadOpen(true); // Show the code/QR modal
@@ -957,6 +965,17 @@ const MainApp = ({ onLogout }) => {
                           <p>Share this code or QR to access files</p>
                         </div>
                       )}
+                      <button 
+                        className="clear-code-btn"
+                        onClick={() => {
+                          setGeneratedCode("");
+                          setQrCodeImage("");
+                          localStorage.removeItem('generatedCode');
+                          localStorage.removeItem('qrCodeImage');
+                        }}
+                      >
+                        Clear Code
+                      </button>
                     </div>
                   </motion.section>
                 )}
