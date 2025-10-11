@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
+import getConfig from "../config/environment";
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+const config = getConfig();
+const API_URL = config.serverUrl;
 
 const LoginPage = ({ onLogin }) => {
   const [email, setEmail] = useState("");
