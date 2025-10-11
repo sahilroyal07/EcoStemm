@@ -148,8 +148,8 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
-// File sharing routes (protected)
-app.post('/api/register', authenticateToken, async (req, res) => {
+// File sharing routes (public for cross-device sharing)
+app.post('/api/register', async (req, res) => {
   const { code, files } = req.body;
 
   if (!code || !files) {
@@ -168,7 +168,7 @@ app.post('/api/register', authenticateToken, async (req, res) => {
           await cloudinary.uploader.add_tag(`code_${code}`, file.public_id);
           console.log(`✅ Tag added successfully to ${file.public_id}`);
           
-          await cloudinary.uploader.add_context(`access_code=${code}|user_id=${req.user.userId}|created_at=${new Date().toISOString()}`, file.public_id);
+          await cloudinary.uploader.add_context(`access_code=${code}|created_at=${new Date().toISOString()}`, file.public_id);
           console.log(`✅ Context added successfully to ${file.public_id}`);
         } catch (tagError) {
           console.error(`❌ Error tagging ${file.public_id}:`, tagError);
