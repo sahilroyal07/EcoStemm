@@ -10,25 +10,36 @@ function App() {
 
   // Check if user is already authenticated on mount
   useEffect(() => {
-    const token = localStorage.getItem("authToken");
-    if (token) {
-      // Verify token is still valid
-      fetch(`${process.env.REACT_APP_API_URL}/api/test`, {
-        headers: { Authorization: `Bearer ${token}` }
+    const urlParams = new URLSearchParams(window.location.search);
+    const codeFromUrl = urlParams.get('code');
+    
+    // If there's a code in URL, auto-login as guest
+    if (codeFromUrl) {
+      // Store code for later retrieval
+      sessionStorage.setItem('pendingCode', codeFromUrl);
+      // Auto-login as test user
+      fetch('https://ecosystem-file-share-2.onrender.com/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: 'test@test.com', password: 'test123' })
       })
-      .then(res => {
-        if (res.ok) {
+      .then(res => res.json())
+      .then(data => {
+        if (data.token) {
+          localStorage.setItem('authToken', data.token);
+          localStorage.setItem('user', JSON.stringify(data.user));
           setIsAuthenticated(true);
-        } else {
-          localStorage.removeItem("authToken");
-          localStorage.removeItem("user");
         }
       })
-      .catch(() => {
-        localStorage.removeItem("authToken");
-        localStorage.removeItem("user");
-      })
+      .catch(() => {})
       .finally(() => setIsLoading(false));
+      return;
+    }
+    
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      setIsAuthenticated(true);
+      setIsLoading(false);
     } else {
       setIsLoading(false);
     }
