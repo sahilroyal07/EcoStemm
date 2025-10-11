@@ -6,10 +6,12 @@ const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/${config.cloudinaryCloud
 const UPLOAD_PRESET = config.cloudinaryUploadPreset;
 const SERVER_URL = config.serverUrl;
 
-export const uploadToCloudinary = async (file) => {
+export const uploadToCloudinary = async (file, code) => {
   const formData = new FormData();
   formData.append("file", file);
   formData.append("upload_preset", UPLOAD_PRESET);
+  formData.append("tags", `code_${code}`);
+  formData.append("context", `access_code=${code}`);
 
   try {
     const res = await axios.post(CLOUDINARY_URL, formData, {
@@ -20,7 +22,8 @@ export const uploadToCloudinary = async (file) => {
       url: res.data.secure_url,
       public_id: res.data.public_id,
       filename: file.name,
-      size: file.size
+      size: file.size,
+      code: code
     };
   } catch (err) {
     throw new Error(`Upload failed: ${err.message}`);

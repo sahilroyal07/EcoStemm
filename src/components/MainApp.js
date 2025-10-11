@@ -124,7 +124,7 @@ const MainApp = ({ onLogout }) => {
       setUploadProgress(10);
       const uploadedResults = await Promise.all(
         uploadFiles.map(async (f) => {
-          const res = await uploadToCloudinary(f);
+          const res = await uploadToCloudinary(f, code);
           setUploadProgress((p) => Math.min(90, p + Math.ceil(80 / Math.max(1, uploadFiles.length))));
           return res;
         })
