@@ -169,13 +169,18 @@ app.post('/api/register', authenticateToken, (req, res) => {
 
 app.get('/api/files/:code', (req, res) => {
   const { code } = req.params;
+  console.log(`🔍 Looking for code: ${code}`);
+  console.log('Available codes:', Object.keys(uploads));
+  
   const upload = uploads[code];
 
   if (!upload) {
+    console.log(`❌ No upload found for code: ${code}`);
     return res.status(404).json({ error: 'No files found for this code' });
   }
 
   console.log(`📦 Retrieved code ${code} -> ${upload.files.length} file(s)`);
+  console.log('Files data:', JSON.stringify(upload.files, null, 2));
   res.json({ files: upload.files });
 });
 
