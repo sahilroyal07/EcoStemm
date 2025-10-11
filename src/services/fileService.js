@@ -8,18 +8,17 @@ const SERVER_URL = config.serverUrl;
 
 export const uploadToCloudinary = async (file, code) => {
   try {
-    const reader = new FileReader();
-    const fileData = await new Promise((resolve, reject) => {
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('code', code);
 
     const token = localStorage.getItem('token');
-    const res = await axios.post(`${SERVER_URL}/api/upload`, 
-      { fileData, fileName: file.name, code },
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
+    const res = await axios.post(`${SERVER_URL}/api/upload`, formData, {
+      headers: { 
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data'
+      }
+    });
     
     return {
       url: res.data.url,
@@ -28,6 +27,7 @@ export const uploadToCloudinary = async (file, code) => {
       size: file.size
     };
   } catch (err) {
+    console.error('Upload error:', err.response?.data);
     throw new Error(err.response?.data?.error || "Upload failed");
   }
 };
