@@ -79,15 +79,12 @@ export const getFilesByCode = async (code) => {
   try {
     const res = await axios.get(`${SERVER_URL}/api/files/${code}`);
     
-    console.log('Raw server response:', res);
     console.log('Response data:', res.data);
-    console.log('Response status:', res.status);
     
-    // Return whatever the server sends, no validation
-    return res.data?.files || res.data || [];
+    // Server returns { files: [...] }, extract the files array
+    return res.data.files || [];
   } catch (err) {
-    console.error("Retrieval error:", err);
-    console.error("Error response:", err.response?.data);
+    console.error("Retrieval error:", err.response?.data);
     throw new Error(err.response?.data?.error || "No files found for this code.");
   }
 };
