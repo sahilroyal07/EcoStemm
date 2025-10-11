@@ -820,14 +820,8 @@ const MainApp = ({ onLogout }) => {
     );
   });
 
-  const handleCodeChange = React.useCallback((e) => {
-    const value = e.target.value.toUpperCase().slice(0, 6);
-    setRetrieveCode(value);
-  }, []);
-
   const RetrieveModal = () => {
-
-
+    const inputRef = useRef(null);
 
     return (
       <div className="modal">
@@ -836,12 +830,16 @@ const MainApp = ({ onLogout }) => {
           <div className="modal-body">
             <label className="label" htmlFor="retrieve-input">Enter access code</label>
             <input 
+              ref={inputRef}
               id="retrieve-input"
               className="retrieve-input"
               type="text" 
               placeholder="e.g. 7BL29Y"
-              value={retrieveCode}
-              onChange={handleCodeChange}
+              defaultValue={retrieveCode}
+              onInput={(e) => {
+                e.target.value = e.target.value.toUpperCase().slice(0, 6);
+                setRetrieveCode(e.target.value);
+              }}
               maxLength="6"
               autoComplete="off"
             />
