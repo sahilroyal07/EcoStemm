@@ -231,13 +231,27 @@ const MainApp = ({ onLogout }) => {
       setRetrieveLoading(true);
       setRetrieveError("");
       const filesFound = await getFilesByCode(retrieveCode);
-      const newRecent = filesFound.map((f) => ({ ...f, code: retrieveCode }));
+      
+      // Safely handle the response
+      if (!filesFound || !Array.isArray(filesFound)) {
+        throw new Error("Invalid response format");
+      }
+      
+      const newRecent = filesFound.map((f) => ({
+        ...f,
+        code: retrieveCode,
+        filename: f.filename || 'Unknown file',
+        url: f.url || null,
+        content: f.content || null,
+        type: f.type || 'file'
+      }));
+      
       setRecentFiles((r) => {
         const combined = [...newRecent, ...r];
         const seen = new Set();
         return combined.filter((it) => {
           if (!it.url && !it.content) return false;
-          const key = it.url || it.content;
+          const key = it.url || it.content || it.filename;
           if (seen.has(key)) return false;
           seen.add(key);
           return true;
@@ -246,7 +260,7 @@ const MainApp = ({ onLogout }) => {
       setRetrieveCode("");
       setIsRetrieveOpen(false);
     } catch (err) {
-      console.error(err);
+      console.error('Retrieve error:', err);
       setRetrieveError(err.message || "No content found for this code.");
     } finally {
       setRetrieveLoading(false);
