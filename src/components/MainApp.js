@@ -82,7 +82,31 @@ const MainApp = ({ onLogout }) => {
     // Check if user is developer (only they see delete button)
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     setIsDeveloper(user.email === 'dev@secureshare.com');
-  }, [uploadedFiles, recentFiles]);
+    
+    // Check for code in URL parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const codeFromUrl = urlParams.get('code');
+    if (codeFromUrl) {
+      // Auto-retrieve files from URL code
+      getFilesByCode(codeFromUrl).then(files => {
+        if (files && files.length > 0) {
+          const newFiles = files.map(f => ({
+            ...f,
+            code: codeFromUrl,
+            filename: f.filename || f.public_id || 'Unknown file',
+            url: f.url || f.secure_url,
+            type: f.type || f.resource_type || 'file',
+            size: f.size || f.bytes || 0
+          }));
+          setRecentFiles(prev => [...newFiles, ...prev]);
+        }
+      }).catch(err => {
+        console.error('Failed to retrieve files from URL:', err);
+      });
+      // Clear URL parameter
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, []);
 
   const handleUpload = async () => {
     console.log("Upload button clicked, files:", uploadFiles);

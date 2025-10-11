@@ -19,20 +19,13 @@ const PORT = process.env.PORT || 5002;
 
 // Middleware
 app.use(cors({
-  origin: function (origin, callback) {
-    // Allow requests with no origin (mobile apps, etc.)
-    if (!origin) return callback(null, true);
-    
-    // Allow localhost and vercel domains
-    if (origin.includes('localhost') || origin.includes('vercel.app')) {
-      return callback(null, true);
-    }
-    
-    // Reject other origins
-    callback(new Error('Not allowed by CORS'));
-  },
-  credentials: true
+  origin: '*',
+  credentials: false,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
+app.options('*', cors());
 app.use(bodyParser.json({ limit: '5gb' }));
 app.use(bodyParser.urlencoded({ limit: '5gb', extended: true }));
 
