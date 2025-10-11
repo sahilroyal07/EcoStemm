@@ -942,12 +942,7 @@ const MainApp = ({ onLogout }) => {
                 className="action-btn retrieve"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={() => {
-                  const code = prompt('Enter 6-character access code:');
-                  if (code && code.length === 6) {
-                    window.open(`https://eco-stemm-ewx3.vercel.app/?code=${code.toUpperCase()}`, '_blank');
-                  }
-                }}
+                onClick={() => setIsRetrieveOpen(true)}
               >
                 <Download size={18} />
                 <span>Enter Code</span>
@@ -1062,6 +1057,7 @@ const MainApp = ({ onLogout }) => {
 
       {/* Modals */}
       {isUploadOpen && <UploadModal />}
+      {isRetrieveOpen && <RetrieveModal />}
       {isTextUploadOpen && <TextUploadModal />}
     </div>
   );
