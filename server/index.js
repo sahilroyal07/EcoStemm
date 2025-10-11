@@ -18,7 +18,14 @@ const app = express();
 const PORT = process.env.PORT || 5002;
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: [
+    'http://localhost:3000',
+    'https://eco-stemm-ewx3.vercel.app',
+    'https://eco-stemm-ewx3-njczg8zzg-sahilroyal07s-projects.vercel.app'
+  ],
+  credentials: true
+}));
 app.use(bodyParser.json({ limit: '5gb' }));
 app.use(bodyParser.urlencoded({ limit: '5gb', extended: true }));
 
