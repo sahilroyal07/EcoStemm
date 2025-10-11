@@ -768,9 +768,12 @@ const MainApp = ({ onLogout }) => {
     }, []);
 
     const handlePaste = React.useCallback((e) => {
-      e.preventDefault();
-      const pastedText = e.clipboardData.getData('text').toUpperCase().slice(0, 6);
-      setRetrieveCode(pastedText);
+      // Let the default paste behavior work, then process the result
+      setTimeout(() => {
+        const input = e.target;
+        const value = input.value.toUpperCase().slice(0, 6);
+        setRetrieveCode(value);
+      }, 0);
     }, []);
 
     return (
