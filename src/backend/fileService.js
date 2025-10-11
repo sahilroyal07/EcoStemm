@@ -79,24 +79,32 @@ export const getFilesByCode = async (code) => {
   try {
     const res = await axios.get(`${SERVER_URL}/api/files/${code}`);
     
-    console.log('Full response:', res); // Debug log
-    console.log('Response data:', res.data); // Debug log
+    console.log('Server response:', res.data);
     
-    // Just return the files array from response
+    // Handle the new Cloudinary-based response format
     const files = res.data?.files || [];
     
-    // Add default properties to prevent undefined errors
+    if (!Array.isArray(files)) {
+      console.error('Files is not an array:', files);
+      return [];
+    }
+    
+    // Map files with proper properties from Cloudinary response
     return files.map(file => ({
-      url: file?.url || null,
-      filename: file?.filename || 'Unknown file',
-      public_id: file?.public_id || null,
-      content: file?.content || null,
-      type: file?.type || 'file',
-      size: file?.size || 0,
-      sizeMB: file?.size ? (file.size / (1024 * 1024)).toFixed(2) : '0'
+      url: file.url || file.secure_url || null,
+      filename: file.filename || file.public_id || 'Unknown file',
+      public_id: file.public_id || null,
+      content: file.content || null,
+      type: file.type || file.resource_type || 'file',
+      size: file.size || file.bytes || 0,
+      format: file.format || null,
+      sizeMB: file.size || file.bytes ? ((file.size || file.bytes) / (1024 * 1024)).toFixed(2) : '0'
     }));
   } catch (err) {
     console.error("Retrieval failed:", err);
-    throw new Error("No file found for this code.");
+    if (err.response?.status === 404) {
+      throw new Error("No files found for this code.");
+    }
+    throw new Error("Failed to retrieve files.");
   }
 };
