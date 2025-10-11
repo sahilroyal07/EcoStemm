@@ -115,14 +115,6 @@ const MainApp = ({ onLogout }) => {
       return alert("Please select at least one file!");
     }
 
-    // Check if token exists
-    const token = localStorage.getItem('token');
-    if (!token) {
-      alert('Session expired. Please log in again.');
-      onLogout();
-      return;
-    }
-
     const code = Math.random().toString(36).substring(2, 8).toUpperCase();
     console.log("Generated code:", code);
 
@@ -174,12 +166,7 @@ const MainApp = ({ onLogout }) => {
       setIsUploading(false);
     } catch (err) {
       console.error("Upload error:", err);
-      if (err.message.includes('403') || err.message.includes('Forbidden') || err.message.includes('token')) {
-        alert('Session expired. Please log in again.');
-        onLogout();
-      } else {
-        alert("Upload failed: " + err.message);
-      }
+      alert("Upload failed: " + err.message);
       setIsUploading(false);
       setUploadProgress(0);
     }

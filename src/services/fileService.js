@@ -43,10 +43,6 @@ export const uploadToCloudinary = async (file, code) => {
       url: `${SERVER_URL}/api/upload`
     });
     
-    if (err.response?.status === 403) {
-      throw new Error('Session expired - please log out and log back in');
-    }
-    
     throw new Error(err.response?.data?.error || err.response?.data?.message || err.message || "Upload failed");
   }
 };
