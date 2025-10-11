@@ -273,15 +273,20 @@ const MainApp = ({ onLogout }) => {
       // Ensure filesFound is an array
       const fileArray = Array.isArray(filesFound) ? filesFound : [];
       
-      const newRecent = fileArray.map((f) => ({
-        ...f,
-        code: retrieveCode,
-        filename: f?.filename || f?.public_id || 'Unknown file',
-        url: f?.url || f?.secure_url || null,
-        content: f?.content || null,
-        type: f?.type || f?.resource_type || 'file',
-        size: f?.size || f?.bytes || 0
-      }));
+      const newRecent = fileArray.map((f) => {
+        console.log('Processing file:', f);
+        return {
+          ...f,
+          code: retrieveCode,
+          filename: f?.filename || f?.public_id || 'Unknown file',
+          url: f?.url || f?.secure_url || f?.public_id || null,
+          content: f?.content || null,
+          type: f?.type || f?.resource_type || 'file',
+          size: f?.size || f?.bytes || 0,
+          sizeMB: f?.size ? (f.size / (1024 * 1024)).toFixed(2) : (f?.bytes ? (f.bytes / (1024 * 1024)).toFixed(2) : '0')
+        };
+      });
+      console.log('Mapped files:', newRecent);
       
       // Set retrieved files for modal display
       setRetrievedFiles(newRecent);
