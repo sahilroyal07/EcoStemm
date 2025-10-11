@@ -78,7 +78,25 @@ export const registerUpload = async (code, files) => {
 export const getFilesByCode = async (code) => {
   try {
     const res = await axios.get(`${SERVER_URL}/api/files/${code}`);
-    return res.data.files;
+    
+    // Validate response structure
+    if (!res.data || !res.data.files) {
+      throw new Error("Invalid response format");
+    }
+    
+    // Ensure files is an array and add safety checks
+    const files = Array.isArray(res.data.files) ? res.data.files : [];
+    
+    // Add default properties to prevent undefined errors
+    return files.map(file => ({
+      url: file.url || null,
+      filename: file.filename || 'Unknown file',
+      public_id: file.public_id || null,
+      content: file.content || null,
+      type: file.type || 'file',
+      size: file.size || 0,
+      sizeMB: file.size ? (file.size / (1024 * 1024)).toFixed(2) : '0'
+    }));
   } catch (err) {
     console.error("Retrieval failed:", err.message);
     throw new Error("No file found for this code.");
