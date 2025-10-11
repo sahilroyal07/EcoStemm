@@ -31,9 +31,7 @@ app.use(bodyParser.urlencoded({ limit: '5gb', extended: true }));
 
 // Persistent user storage
 const USERS_FILE = './users.json';
-const UPLOADS_FILE = './uploads.json';
 let users = [];
-let uploads = {};
 
 // Load users from file
 if (fs.existsSync(USERS_FILE)) {
@@ -50,29 +48,9 @@ if (fs.existsSync(USERS_FILE)) {
   users = [];
 }
 
-// Load uploads from file
-if (fs.existsSync(UPLOADS_FILE)) {
-  try {
-    const uploadsData = fs.readFileSync(UPLOADS_FILE, 'utf8');
-    uploads = JSON.parse(uploadsData);
-    console.log(`📂 Loaded ${Object.keys(uploads).length} upload codes from storage`);
-  } catch (error) {
-    console.log('Error loading uploads, starting fresh:', error.message);
-    uploads = {};
-  }
-} else {
-  console.log('No uploads file found, starting fresh');
-  uploads = {};
-}
-
 // Save users to file
 const saveUsers = () => {
   fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
-};
-
-// Save uploads to file
-const saveUploads = () => {
-  fs.writeFileSync(UPLOADS_FILE, JSON.stringify(uploads, null, 2));
 };
 
 // JWT Secret
@@ -171,41 +149,63 @@ const authenticateToken = (req, res, next) => {
 };
 
 // File sharing routes (protected)
-app.post('/api/register', authenticateToken, (req, res) => {
+app.post('/api/register', authenticateToken, async (req, res) => {
   const { code, files } = req.body;
 
   if (!code || !files) {
     return res.status(400).json({ error: 'Missing code or files' });
   }
 
-  uploads[code] = {
-    files,
-    userId: req.user.userId,
-    createdAt: new Date()
-  };
-  
-  // Save to persistent storage
-  saveUploads();
-  
-  console.log(`✅ Registered code ${code} -> ${files.length} file(s)`);
-  res.json({ success: true });
+  try {
+    // Store metadata in Cloudinary for each file
+    for (const file of files) {
+      if (file.public_id) {
+        await cloudinary.uploader.add_tag(`code_${code}`, file.public_id);
+        await cloudinary.uploader.add_context(`access_code=${code}|user_id=${req.user.userId}|created_at=${new Date().toISOString()}`, file.public_id);
+      }
+    }
+    
+    console.log(`✅ Registered code ${code} -> ${files.length} file(s) in Cloudinary`);
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error registering files:', error);
+    res.status(500).json({ error: 'Failed to register files' });
+  }
 });
 
-app.get('/api/files/:code', (req, res) => {
+app.get('/api/files/:code', async (req, res) => {
   const { code } = req.params;
   console.log(`🔍 Looking for code: ${code}`);
-  console.log('Available codes:', Object.keys(uploads));
   
-  const upload = uploads[code];
-
-  if (!upload) {
-    console.log(`❌ No upload found for code: ${code}`);
-    return res.status(404).json({ error: 'No files found for this code' });
+  try {
+    // Search Cloudinary for files with this access code tag
+    const result = await cloudinary.search
+      .expression(`tags:code_${code}`)
+      .with_field('context')
+      .max_results(100)
+      .execute();
+    
+    if (!result.resources || result.resources.length === 0) {
+      console.log(`❌ No files found for code: ${code}`);
+      return res.status(404).json({ error: 'No files found for this code' });
+    }
+    
+    // Format files for response
+    const files = result.resources.map(resource => ({
+      url: resource.secure_url,
+      public_id: resource.public_id,
+      filename: resource.filename || resource.public_id,
+      type: resource.resource_type,
+      size: resource.bytes,
+      format: resource.format
+    }));
+    
+    console.log(`📦 Retrieved code ${code} -> ${files.length} file(s) from Cloudinary`);
+    res.json({ files });
+  } catch (error) {
+    console.error('Error retrieving files:', error);
+    res.status(500).json({ error: 'Failed to retrieve files' });
   }
-
-  console.log(`📦 Retrieved code ${code} -> ${upload.files.length} file(s)`);
-  console.log('Files data:', JSON.stringify(upload.files, null, 2));
-  res.json({ files: upload.files });
 });
 
 // Get Cloudinary storage usage (accessible to all authenticated users)
@@ -258,9 +258,8 @@ app.delete('/api/storage/clear', authenticateToken, async (req, res) => {
     
     await Promise.all(deletePromises);
     
-    // Clear uploads data
-    Object.keys(uploads).forEach(key => delete uploads[key]);
-    saveUploads();
+    // Clear all files from Cloudinary
+    // (Files are already being deleted above)
     
     res.json({ message: 'All storage cleared successfully' });
   } catch (error) {
