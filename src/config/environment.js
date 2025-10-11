@@ -1,14 +1,14 @@
 // Environment configuration for cross-platform compatibility
 const config = {
   development: {
-    serverUrl: 'http://localhost:4000',
-    cloudinaryCloudName: 'dugyjycjw',
-    cloudinaryUploadPreset: 'react_secure_share'
+    serverUrl: 'http://localhost:5002',
+    cloudinaryCloudName: 'dzngaquws',
+    cloudinaryUploadPreset: 'ml_default'
   },
   production: {
-    serverUrl: window.location.origin, // Use same domain as frontend
-    cloudinaryCloudName: 'dugyjycjw',
-    cloudinaryUploadPreset: 'react_secure_share'
+    serverUrl: 'https://your-render-app-name.onrender.com', // Replace with your Render URL
+    cloudinaryCloudName: 'dzngaquws',
+    cloudinaryUploadPreset: 'ml_default'
   }
 };
 
