@@ -24,8 +24,6 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
-
-app.options('*', cors());
 app.use(bodyParser.json({ limit: '5gb' }));
 app.use(bodyParser.urlencoded({ limit: '5gb', extended: true }));
 
