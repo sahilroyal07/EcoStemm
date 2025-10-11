@@ -820,12 +820,12 @@ const MainApp = ({ onLogout }) => {
     );
   });
 
+  const handleCodeChange = React.useCallback((e) => {
+    const value = e.target.value.toUpperCase().slice(0, 6);
+    setRetrieveCode(value);
+  }, []);
+
   const RetrieveModal = () => {
-    const handleCodeChange = (e) => {
-      const value = e.target.value.toUpperCase().slice(0, 6);
-      console.log('Code changing to:', value);
-      setRetrieveCode(value);
-    };
 
 
 
