@@ -16,6 +16,7 @@ export const uploadToCloudinary = async (file, code) => {
 
     const token = localStorage.getItem('token');
     console.log('Token exists:', !!token);
+    console.log('Token value (first 20 chars):', token?.substring(0, 20));
     console.log('Server URL:', SERVER_URL);
     
     const res = await axios.post(`${SERVER_URL}/api/upload`, formData, {
@@ -38,7 +39,7 @@ export const uploadToCloudinary = async (file, code) => {
       message: err.message,
       response: err.response?.data,
       status: err.response?.status,
-      headers: err.response?.headers,
+      requestHeaders: { Authorization: `Bearer ${token?.substring(0, 20)}...` },
       url: `${SERVER_URL}/api/upload`
     });
     
