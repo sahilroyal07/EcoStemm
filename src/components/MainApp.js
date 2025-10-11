@@ -820,8 +820,53 @@ const MainApp = ({ onLogout }) => {
     );
   });
 
-  const RetrieveModal = () => {
+  const RetrieveModal = React.memo(() => {
     const inputRef = useRef(null);
+    const codeRef = useRef(retrieveCode);
+
+    const handleRetrieveClick = async () => {
+      const code = inputRef.current?.value || "";
+      if (!code) return alert("Please enter an access code!");
+      
+      setRetrieveCode(code);
+      
+      try {
+        setRetrieveLoading(true);
+        setRetrieveError("");
+        const filesFound = await getFilesByCode(code);
+        
+        const fileArray = Array.isArray(filesFound) ? filesFound : [];
+        
+        const newRecent = fileArray.map((f) => ({
+          ...f,
+          code: code,
+          filename: f?.filename || f?.public_id || 'Unknown file',
+          url: f?.url || f?.secure_url || f?.public_id || null,
+          content: f?.content || null,
+          type: f?.type || f?.resource_type || 'file',
+          size: f?.size || f?.bytes || 0,
+          sizeMB: f?.size ? (f.size / (1024 * 1024)).toFixed(2) : (f?.bytes ? (f.bytes / (1024 * 1024)).toFixed(2) : '0')
+        }));
+        
+        setRetrievedFiles(newRecent);
+        
+        setRecentFiles((r) => {
+          const combined = [...newRecent, ...r];
+          const seen = new Set();
+          return combined.filter((it) => {
+            if (!it.url && !it.content) return false;
+            const key = it.url || it.content || it.filename;
+            if (seen.has(key)) return false;
+            seen.add(key);
+            return true;
+          });
+        });
+      } catch (err) {
+        setRetrieveError(err.message || "No content found for this code.");
+      } finally {
+        setRetrieveLoading(false);
+      }
+    };
 
     return (
       <div className="modal">
@@ -838,7 +883,7 @@ const MainApp = ({ onLogout }) => {
               defaultValue={retrieveCode}
               onInput={(e) => {
                 e.target.value = e.target.value.toUpperCase().slice(0, 6);
-                setRetrieveCode(e.target.value);
+                codeRef.current = e.target.value;
               }}
               maxLength="6"
               autoComplete="off"
@@ -888,7 +933,7 @@ const MainApp = ({ onLogout }) => {
           </div>
           <div className="modal-actions">
             {retrievedFiles.length === 0 ? (
-              <button className="retrieve-btn" onClick={handleRetrieve} disabled={retrieveLoading || !retrieveCode}>
+              <button className="retrieve-btn" onClick={handleRetrieveClick} disabled={retrieveLoading}>
                 {retrieveLoading ? 'Searching…' : 'Retrieve'}
               </button>
             ) : (
@@ -907,7 +952,7 @@ const MainApp = ({ onLogout }) => {
         </div>
       </div>
     );
-  };
+  });
 
   const UploadedBar = () => (
     <div className="uploaded-bar">
