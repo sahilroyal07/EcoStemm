@@ -1,4 +1,4 @@
-// Environment configuration for cross-platform compatibility
+// Environment configuration for cross-platform compatibility - Updated for deployment
 const config = {
   development: {
     serverUrl: 'http://localhost:5002',
