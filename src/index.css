@@ -1,0 +1,81 @@
+body {
+  background-color: #f4f4f9;
+  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 100vh;
+  padding: 40px 20px;
+}
+
+h1 {
+  color: #2c3e50;
+  font-size: 32px;
+  margin-bottom: 30px;
+}
+
+.card {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  padding: 20px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.card h3 {
+  color: #34495e;
+  margin-bottom: 10px;
+}
+
+input[type="file"],
+input[type="text"] {
+  width: 90%;
+  margin: 10px 0;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  outline: none;
+}
+
+input[type="text"]:focus {
+  border-color: #3498db;
+}
+
+button {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 15px;
+  margin-top: 8px;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #2980b9;
+}
+
+.message {
+  margin-top: 15px;
+  color: #333;
+  font-weight: bold;
+}
+
+.download-link {
+  margin-top: 10px;
+  display: inline-block;
+  text-decoration: none;
+  color: #1e90ff;
+  font-weight: bold;
+}
