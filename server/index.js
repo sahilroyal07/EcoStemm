@@ -259,6 +259,19 @@ app.post('/api/upload', authenticateToken, async (req, res) => {
   }
 });
 
+// Root route
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'EcoSystem Backend API',
+    status: 'running',
+    endpoints: {
+      test: '/api/test',
+      auth: '/api/auth/login',
+      files: '/api/files/:code'
+    }
+  });
+});
+
 // Test route
 app.get('/api/test', (req, res) => {
   res.json({ message: 'Server is running!' });
