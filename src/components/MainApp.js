@@ -228,10 +228,12 @@ const MainApp = ({ onLogout }) => {
   const handleRetrieve = async () => {
     if (!retrieveCode) return alert("Please enter an access code!");
 
+    console.log('Starting retrieve with code:', retrieveCode);
     try {
       setRetrieveLoading(true);
       setRetrieveError("");
       const filesFound = await getFilesByCode(retrieveCode);
+      console.log('Files retrieved:', filesFound);
       
       // Handle any response format
       console.log('Files found:', filesFound);
@@ -263,8 +265,8 @@ const MainApp = ({ onLogout }) => {
           return true;
         });
       });
+      console.log('Retrieve successful, keeping modal open');
       // Keep modal open to show retrieved files
-      // setIsRetrieveOpen(false);
     } catch (err) {
       console.error('Retrieve error:', err);
       setRetrieveError(err.message || "No content found for this code.");
@@ -766,6 +768,7 @@ const MainApp = ({ onLogout }) => {
   const RetrieveModal = () => {
     const handleCodeChange = (e) => {
       const value = e.target.value.toUpperCase().slice(0, 6);
+      console.log('Code changing to:', value);
       setRetrieveCode(value);
     };
 
