@@ -26,7 +26,8 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "node server/index.js",
+    "start:client": "react-scripts start",
     "start:server": "node server/index.js",
     "build": "react-scripts build",
     "test": "react-scripts test",
@@ -58,7 +59,7 @@
     "react-scripts": "^5.0.1"
   },
   "description": "This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).",
-  "main": "index.js",
+  "main": "server/index.js",
   "keywords": [],
   "author": "",
   "license": "ISC"
