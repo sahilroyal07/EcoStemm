@@ -259,8 +259,7 @@ const MainApp = ({ onLogout }) => {
           return true;
         });
       });
-      // Close modal and clear code after successful retrieval
-      setRetrieveCode("");
+      // Close modal after successful retrieval but keep code
       setIsRetrieveOpen(false);
     } catch (err) {
       console.error('Retrieve error:', err);
