@@ -414,6 +414,10 @@ app.delete('/api/admin/users/:email', authenticateToken, async (req, res) => {
   }
 });
 
+
+
+let server;
+
 app.listen(PORT, async () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
   
@@ -451,21 +455,29 @@ app.listen(PORT, async () => {
   users.forEach(user => {
     console.log(`- User: ${user.email} (ID: ${user.id})`);
   });
+}).on('listening', function() {
+  server = this;
 });
-
-const server = app;
 
 // Graceful shutdown
 process.on('SIGTERM', () => {
   console.log('SIGTERM received, shutting down gracefully');
-  server.close(() => {
+  if (server) {
+    server.close(() => {
+      process.exit(0);
+    });
+  } else {
     process.exit(0);
-  });
+  }
 });
 
 process.on('SIGINT', () => {
   console.log('SIGINT received, shutting down gracefully');
-  server.close(() => {
+  if (server) {
+    server.close(() => {
+      process.exit(0);
+    });
+  } else {
     process.exit(0);
-  });
+  }
 });
