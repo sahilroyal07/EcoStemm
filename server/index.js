@@ -31,8 +31,9 @@ app.use(bodyParser.urlencoded({ limit: '5gb', extended: true }));
 
 // Persistent user storage
 const USERS_FILE = './users.json';
+const UPLOADS_FILE = './uploads.json';
 let users = [];
-const uploads = {};
+let uploads = {};
 
 // Load users from file
 if (fs.existsSync(USERS_FILE)) {
@@ -49,9 +50,29 @@ if (fs.existsSync(USERS_FILE)) {
   users = [];
 }
 
+// Load uploads from file
+if (fs.existsSync(UPLOADS_FILE)) {
+  try {
+    const uploadsData = fs.readFileSync(UPLOADS_FILE, 'utf8');
+    uploads = JSON.parse(uploadsData);
+    console.log(`📂 Loaded ${Object.keys(uploads).length} upload codes from storage`);
+  } catch (error) {
+    console.log('Error loading uploads, starting fresh:', error.message);
+    uploads = {};
+  }
+} else {
+  console.log('No uploads file found, starting fresh');
+  uploads = {};
+}
+
 // Save users to file
 const saveUsers = () => {
   fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
+};
+
+// Save uploads to file
+const saveUploads = () => {
+  fs.writeFileSync(UPLOADS_FILE, JSON.stringify(uploads, null, 2));
 };
 
 // JWT Secret
@@ -163,6 +184,9 @@ app.post('/api/register', authenticateToken, (req, res) => {
     createdAt: new Date()
   };
   
+  // Save to persistent storage
+  saveUploads();
+  
   console.log(`✅ Registered code ${code} -> ${files.length} file(s)`);
   res.json({ success: true });
 });
@@ -236,6 +260,7 @@ app.delete('/api/storage/clear', authenticateToken, async (req, res) => {
     
     // Clear uploads data
     Object.keys(uploads).forEach(key => delete uploads[key]);
+    saveUploads();
     
     res.json({ message: 'All storage cleared successfully' });
   } catch (error) {
