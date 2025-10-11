@@ -281,14 +281,18 @@ app.delete('/api/storage/clear', authenticateToken, async (req, res) => {
   }
 });
 
-// Upload to Cloudinary (signed)
+// Upload to Cloudinary (signed, public access)
 app.post('/api/upload', authenticateToken, async (req, res) => {
   try {
-    const { fileData, fileName } = req.body;
+    const { fileData, fileName, code } = req.body;
     
     const uploadResult = await cloudinary.uploader.upload(fileData, {
       public_id: `${Date.now()}_${fileName}`,
-      resource_type: 'auto'
+      resource_type: 'auto',
+      type: 'upload',
+      access_mode: 'public',
+      tags: [`code_${code}`],
+      context: `access_code=${code}`
     });
     
     res.json({
@@ -299,6 +303,35 @@ app.post('/api/upload', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('Upload error:', error);
     res.status(500).json({ error: 'Upload failed' });
+  }
+});
+
+// Generate signed upload parameters
+app.post('/api/upload/signature', authenticateToken, async (req, res) => {
+  try {
+    const { code } = req.body;
+    const timestamp = Math.round(new Date().getTime() / 1000);
+    
+    const signature = cloudinary.utils.api_sign_request(
+      {
+        timestamp: timestamp,
+        tags: `code_${code}`,
+        context: `access_code=${code}`,
+        type: 'upload',
+        access_mode: 'public'
+      },
+      process.env.CLOUDINARY_API_SECRET
+    );
+    
+    res.json({
+      signature,
+      timestamp,
+      api_key: process.env.CLOUDINARY_API_KEY,
+      cloud_name: process.env.CLOUDINARY_CLOUD_NAME
+    });
+  } catch (error) {
+    console.error('Signature error:', error);
+    res.status(500).json({ error: 'Failed to generate signature' });
   }
 });
 
