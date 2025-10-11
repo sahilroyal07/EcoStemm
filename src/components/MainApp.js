@@ -695,73 +695,90 @@ const MainApp = ({ onLogout }) => {
     </div>
   );
 
-  const TextUploadModal = () => (
-    <div className="modal">
-      <div className="modal-content text-upload-modal">
-        <div className="modal-header">
-          <h3>Share Text Content</h3>
-        </div>
-        <div className="modal-body">
-          <label className="label" htmlFor="text-content">Enter or paste your text:</label>
-          <textarea
-            id="text-content"
-            className="text-content-input"
-            placeholder="Paste your text, notes, links, or any content here..."
-            value={textContent}
-            onChange={(e) => setTextContent(e.target.value)}
-            rows={8}
-          />
-          <div className="text-info">
-            {textContent.length} characters
+  const TextUploadModal = React.memo(() => {
+    const handleTextChange = React.useCallback((e) => {
+      setTextContent(e.target.value);
+    }, []);
+
+    return (
+      <div className="modal">
+        <div className="modal-content text-upload-modal">
+          <div className="modal-header">
+            <h3>Share Text Content</h3>
+          </div>
+          <div className="modal-body">
+            <label className="label" htmlFor="text-content">Enter or paste your text:</label>
+            <textarea
+              id="text-content"
+              className="text-content-input"
+              placeholder="Paste your text, notes, links, or any content here..."
+              value={textContent}
+              onChange={handleTextChange}
+              rows={8}
+              autoComplete="off"
+              spellCheck="false"
+            />
+            <div className="text-info">
+              {textContent.length} characters
+            </div>
+          </div>
+          <div className="modal-actions">
+            <button 
+              className="upload-btn" 
+              onClick={handleTextUpload} 
+              disabled={!textContent.trim() || isUploading}
+            >
+              {isUploading ? 'Sharing...' : 'Share Text'}
+            </button>
+            <button 
+              className="cancel" 
+              onClick={() => { 
+                setIsTextUploadOpen(false); 
+                setTextContent(''); 
+              }}
+            >
+              Cancel
+            </button>
           </div>
         </div>
-        <div className="modal-actions">
-          <button 
-            className="upload-btn" 
-            onClick={handleTextUpload} 
-            disabled={!textContent.trim() || isUploading}
-          >
-            {isUploading ? 'Sharing...' : 'Share Text'}
-          </button>
-          <button 
-            className="cancel" 
-            onClick={() => { 
-              setIsTextUploadOpen(false); 
-              setTextContent(''); 
-            }}
-          >
-            Cancel
-          </button>
-        </div>
       </div>
-    </div>
-  );
+    );
+  });
 
-  const RetrieveModal = () => (
-    <div className="modal">
-      <div className="modal-content retrieve-modal">
-        <div className="modal-header"><h3>Retrieve Content</h3></div>
-        <div className="modal-body">
-          <label className="label" htmlFor="retrieve-input">Enter access code</label>
-          <input 
-            id="retrieve-input"
-            className="retrieve-input"
-            type="text" 
-            placeholder="e.g. 7BL29Y"
-            value={retrieveCode}
-            onChange={(e) => setRetrieveCode(e.target.value.toUpperCase())}
-          />
-          {retrieveError && <div className="error">{retrieveError}</div>}
-        </div>
-        <div className="modal-actions">
-          <button className="retrieve-btn" onClick={handleRetrieve} disabled={retrieveLoading || !retrieveCode}>
-            {retrieveLoading ? 'Searching…' : 'Retrieve'}
-          </button>
-          <button className="cancel" onClick={() => { setIsRetrieveOpen(false); setRetrieveError(""); }}>Cancel</button>
+  const RetrieveModal = React.memo(() => {
+    const handleCodeChange = React.useCallback((e) => {
+      const value = e.target.value.toUpperCase().slice(0, 6);
+      setRetrieveCode(value);
+    }, []);
+
+    return (
+      <div className="modal">
+        <div className="modal-content retrieve-modal">
+          <div className="modal-header"><h3>Retrieve Content</h3></div>
+          <div className="modal-body">
+            <label className="label" htmlFor="retrieve-input">Enter access code</label>
+            <input 
+              id="retrieve-input"
+              className="retrieve-input"
+              type="text" 
+              placeholder="e.g. 7BL29Y"
+              value={retrieveCode}
+              onChange={handleCodeChange}
+              maxLength="6"
+              autoComplete="off"
+            />
+            {retrieveError && <div className="error">{retrieveError}</div>}
+          </div>
+          <div className="modal-actions">
+            <button className="retrieve-btn" onClick={handleRetrieve} disabled={retrieveLoading || !retrieveCode}>
+              {retrieveLoading ? 'Searching…' : 'Retrieve'}
+            </button>
+            <button className="cancel" onClick={() => { setIsRetrieveOpen(false); setRetrieveError(""); }}>Cancel</button>
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  });
 
   const UploadedBar = () => (
     <div className="uploaded-bar">
