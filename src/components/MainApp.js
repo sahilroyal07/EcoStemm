@@ -259,11 +259,9 @@ const MainApp = ({ onLogout }) => {
           return true;
         });
       });
-      // Only close modal if files were successfully retrieved
-      if (newRecent.length > 0) {
-        setIsRetrieveOpen(false);
-        // Don't clear the code in case user wants to try again
-      }
+      // Close modal and clear code after successful retrieval
+      setRetrieveCode("");
+      setIsRetrieveOpen(false);
     } catch (err) {
       console.error('Retrieve error:', err);
       setRetrieveError(err.message || "No content found for this code.");

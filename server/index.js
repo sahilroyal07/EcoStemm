@@ -178,30 +178,33 @@ app.get('/api/files/:code', async (req, res) => {
   console.log(`🔍 Looking for code: ${code}`);
   
   try {
-    // Search Cloudinary for files with this access code tag
+    // First try Cloudinary search for new uploads
+    console.log('Searching Cloudinary for tagged files...');
     const result = await cloudinary.search
       .expression(`tags:code_${code}`)
       .with_field('context')
       .max_results(100)
       .execute();
     
-    if (!result.resources || result.resources.length === 0) {
-      console.log(`❌ No files found for code: ${code}`);
-      return res.status(404).json({ error: 'No files found for this code' });
+    console.log('Cloudinary search result:', result);
+    
+    if (result.resources && result.resources.length > 0) {
+      // Format files for response
+      const files = result.resources.map(resource => ({
+        url: resource.secure_url,
+        public_id: resource.public_id,
+        filename: resource.filename || resource.public_id,
+        type: resource.resource_type,
+        size: resource.bytes,
+        format: resource.format
+      }));
+      
+      console.log(`📦 Found ${files.length} file(s) in Cloudinary for code ${code}`);
+      return res.json({ files });
     }
     
-    // Format files for response
-    const files = result.resources.map(resource => ({
-      url: resource.secure_url,
-      public_id: resource.public_id,
-      filename: resource.filename || resource.public_id,
-      type: resource.resource_type,
-      size: resource.bytes,
-      format: resource.format
-    }));
-    
-    console.log(`📦 Retrieved code ${code} -> ${files.length} file(s) from Cloudinary`);
-    res.json({ files });
+    console.log(`❌ No files found for code: ${code}`);
+    return res.status(404).json({ error: 'No files found for this code' });
   } catch (error) {
     console.error('Error retrieving files:', error);
     res.status(500).json({ error: 'Failed to retrieve files' });
