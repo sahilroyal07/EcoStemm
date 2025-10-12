@@ -837,9 +837,8 @@ const MainApp = ({ onLogout }) => {
     );
   });
 
-  const RetrieveModal = React.memo(() => {
+  const RetrieveModal = () => {
     const inputRef = useRef(null);
-    const codeRef = useRef(retrieveCode);
 
     const handleRetrieveClick = async () => {
       const code = inputRef.current?.value || "";
@@ -902,9 +901,8 @@ const MainApp = ({ onLogout }) => {
               type="text" 
               placeholder="e.g. 7BL29Y"
               defaultValue={retrieveCode}
-              onInput={(e) => {
+              onChange={(e) => {
                 e.target.value = e.target.value.toUpperCase().slice(0, 6);
-                codeRef.current = e.target.value;
               }}
               maxLength="6"
               autoComplete="off"
@@ -997,7 +995,7 @@ const MainApp = ({ onLogout }) => {
         </div>
       </div>
     );
-  });
+  };
 
   const UploadedBar = () => (
     <div className="uploaded-bar">
