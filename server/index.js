@@ -283,7 +283,10 @@ app.delete('/api/storage/clear', authenticateToken, async (req, res) => {
 
 // Upload to Cloudinary (signed, public access)
 const multer = require('multer');
-const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 100 * 1024 * 1024 } });
+const upload = multer({ 
+  storage: multer.memoryStorage(), 
+  limits: { fileSize: 500 * 1024 * 1024 } // 500MB limit
+});
 
 app.post('/api/upload', upload.single('file'), (req, res) => {
   try {
@@ -294,13 +297,16 @@ app.post('/api/upload', upload.single('file'), (req, res) => {
     const { code } = req.body;
     const file = req.file;
     
+    console.log(`⬆️ Uploading ${file.originalname} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
+    
     const uploadStream = cloudinary.uploader.upload_stream(
       {
         resource_type: 'auto',
         type: 'upload',
         access_mode: 'public',
         tags: [`code_${code}`],
-        context: `access_code=${code}`
+        context: `access_code=${code}`,
+        chunk_size: 6000000
       },
       (error, result) => {
         if (error) {
@@ -308,6 +314,7 @@ app.post('/api/upload', upload.single('file'), (req, res) => {
           return res.status(500).json({ error: 'Upload failed' });
         }
         
+        console.log(`✅ Upload complete: ${file.originalname}`);
         res.json({
           url: result.secure_url,
           public_id: result.public_id,

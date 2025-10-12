@@ -19,6 +19,11 @@ export const uploadToCloudinary = async (file, code) => {
     const res = await axios.post(`${SERVER_URL}/api/upload`, formData, {
       headers: { 
         'Content-Type': 'multipart/form-data'
+      },
+      timeout: 300000, // 5 minutes timeout
+      onUploadProgress: (progressEvent) => {
+        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+        console.log(`Upload progress: ${percentCompleted}%`);
       }
     });
     
@@ -37,6 +42,10 @@ export const uploadToCloudinary = async (file, code) => {
       status: err.response?.status,
       url: `${SERVER_URL}/api/upload`
     });
+    
+    if (err.code === 'ECONNABORTED') {
+      throw new Error('Upload timeout - file too large or slow connection');
+    }
     
     throw new Error(err.response?.data?.error || err.response?.data?.message || err.message || "Upload failed");
   }

@@ -333,16 +333,15 @@ const MainApp = ({ onLogout }) => {
 
   const handleDownload = async (url, filename) => {
     try {
-      const response = await fetch(url);
-      const blob = await response.blob();
-      const blobUrl = URL.createObjectURL(blob);
+      // Direct download for Cloudinary URLs
       const a = document.createElement('a');
-      a.href = blobUrl;
+      a.href = url;
       a.download = filename || 'download';
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-      URL.revokeObjectURL(blobUrl);
     } catch (error) {
       console.error('Download failed:', error);
       window.open(url, '_blank');
