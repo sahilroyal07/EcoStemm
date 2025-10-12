@@ -332,19 +332,17 @@ const MainApp = ({ onLogout }) => {
   };
 
   const handleDownload = async (url, filename) => {
+    console.log('Download attempt:', { url, filename });
+    if (!url || !url.startsWith('http')) {
+      console.error('Invalid URL:', url);
+      alert('Cannot download: Invalid file URL');
+      return;
+    }
     try {
-      // Direct download for Cloudinary URLs
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename || 'download';
-      a.target = '_blank';
-      a.rel = 'noopener noreferrer';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+      window.open(url, '_blank', 'noopener,noreferrer');
     } catch (error) {
       console.error('Download failed:', error);
-      window.open(url, '_blank');
+      alert('Download failed: ' + error.message);
     }
   };
 
@@ -465,10 +463,30 @@ const MainApp = ({ onLogout }) => {
             </>
           ) : (
             <>
-              <button className="btn view" onClick={() => window.open(file.url, '_blank')}>
+              <button 
+                className="btn view" 
+                onClick={() => {
+                  if (file.url && file.url.startsWith('http')) {
+                    window.open(file.url, '_blank', 'noopener,noreferrer');
+                  } else {
+                    alert('Invalid file URL');
+                  }
+                }}
+                disabled={!file.url || !file.url.startsWith('http')}
+              >
                 View
               </button>
-              <button className="btn download" onClick={() => handleDownload(file.url, file.filename)}>
+              <button 
+                className="btn download" 
+                onClick={() => {
+                  if (file.url && file.url.startsWith('http')) {
+                    handleDownload(file.url, file.filename);
+                  } else {
+                    alert('Invalid file URL');
+                  }
+                }}
+                disabled={!file.url || !file.url.startsWith('http')}
+              >
                 Download
               </button>
             </>
@@ -836,16 +854,20 @@ const MainApp = ({ onLogout }) => {
         
         const fileArray = Array.isArray(filesFound) ? filesFound : [];
         
-        const newRecent = fileArray.map((f) => ({
-          ...f,
-          code: code,
-          filename: f?.filename || f?.public_id || 'Unknown file',
-          url: f?.url || f?.secure_url || f?.public_id || null,
-          content: f?.content || null,
-          type: f?.type || f?.resource_type || 'file',
-          size: f?.size || f?.bytes || 0,
-          sizeMB: f?.size ? (f.size / (1024 * 1024)).toFixed(2) : (f?.bytes ? (f.bytes / (1024 * 1024)).toFixed(2) : '0')
-        }));
+        const newRecent = fileArray.map((f) => {
+          const fileUrl = f?.url || f?.secure_url || null;
+          console.log('Retrieved file URL:', fileUrl, 'for file:', f?.filename);
+          return {
+            ...f,
+            code: code,
+            filename: f?.filename || f?.public_id || 'Unknown file',
+            url: fileUrl,
+            content: f?.content || null,
+            type: f?.type || f?.resource_type || 'file',
+            size: f?.size || f?.bytes || 0,
+            sizeMB: f?.size ? (f.size / (1024 * 1024)).toFixed(2) : (f?.bytes ? (f.bytes / (1024 * 1024)).toFixed(2) : '0')
+          };
+        });
         
         setRetrievedFiles(newRecent);
         
@@ -920,8 +942,32 @@ const MainApp = ({ onLogout }) => {
                         </>
                       ) : (
                         <>
-                          <button className="btn-small" onClick={() => window.open(file.url, '_blank')}>View</button>
-                          <button className="btn-small" onClick={() => handleDownload(file.url, file.filename)}>Download</button>
+                          <button 
+                            className="btn-small" 
+                            onClick={() => {
+                              if (file.url && file.url.startsWith('http')) {
+                                window.open(file.url, '_blank', 'noopener,noreferrer');
+                              } else {
+                                alert('Invalid file URL');
+                              }
+                            }}
+                            disabled={!file.url || !file.url.startsWith('http')}
+                          >
+                            View
+                          </button>
+                          <button 
+                            className="btn-small" 
+                            onClick={() => {
+                              if (file.url && file.url.startsWith('http')) {
+                                handleDownload(file.url, file.filename);
+                              } else {
+                                alert('Invalid file URL');
+                              }
+                            }}
+                            disabled={!file.url || !file.url.startsWith('http')}
+                          >
+                            Download
+                          </button>
                         </>
                       )}
                     </div>
