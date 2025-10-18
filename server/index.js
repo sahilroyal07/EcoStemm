@@ -5,6 +5,8 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const { v2: cloudinary } = require('cloudinary');
 const fs = require('fs');
+const archiver = require("archiver"); // Add this dependency
+const axios = require("axios"); // For downloading files
 require('dotenv').config();
 
 // Configure Cloudinary
@@ -356,6 +358,39 @@ app.post('/api/upload/signature', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('Signature error:', error);
     res.status(500).json({ error: 'Failed to generate signature' });
+  }
+});
+
+// New endpoint: Generate and download a ZIP file
+app.post("/api/download-zip", async (req, res) => {
+  const { files } = req.body; // Array of file URLs or public IDs
+  if (!files || !Array.isArray(files) || files.length === 0) {
+    return res.status(400).send("No files provided for download.");
+  }
+
+  try {
+    // Create a ZIP archive
+    res.set({
+      "Content-Type": "application/zip",
+      "Content-Disposition": "attachment; filename=files.zip",
+    });
+
+    const archive = archiver("zip", { zlib: { level: 9 } });
+    archive.pipe(res);
+
+    // Download each file and append it to the archive
+    for (const file of files) {
+      const fileUrl = file.url; // Assuming `file.url` contains the file URL
+      const fileName = file.filename || file.public_id || "file";
+
+      const response = await axios.get(fileUrl, { responseType: "stream" });
+      archive.append(response.data, { name: fileName });
+    }
+
+    await archive.finalize(); // Finalize the archive
+  } catch (err) {
+    console.error("Error generating ZIP file:", err);
+    res.status(500).send("Failed to generate ZIP file.");
   }
 });
 
