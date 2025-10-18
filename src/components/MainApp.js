@@ -510,9 +510,9 @@ const MainApp = ({ onLogout }) => {
                 onClick={() => {
                   if (file.url && file.url.startsWith('http')) {
                     const a = document.createElement('a');
-                    a.href = file.url;
-                    a.download = file.filename || 'download';
-                    a.click();
+                    a.href = file.url; // File URL
+                    a.download = file.filename || 'download'; // Suggested filename
+                    a.click(); // Trigger the download
                   } else {
                     alert('Invalid file URL');
                   }
@@ -990,9 +990,9 @@ const MainApp = ({ onLogout }) => {
                             onClick={() => {
                               if (file.url && file.url.startsWith('http')) {
                                 const a = document.createElement('a');
-                                a.href = file.url;
-                                a.download = file.filename || 'download';
-                                a.click();
+                                a.href = file.url; // File URL
+                                a.download = file.filename || 'download'; // Suggested filename
+                                a.click(); // Trigger the download
                               } else {
                                 alert('Invalid file URL');
                               }
