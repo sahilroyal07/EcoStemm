@@ -509,7 +509,10 @@ const MainApp = ({ onLogout }) => {
                 className="btn download" 
                 onClick={() => {
                   if (file.url && file.url.startsWith('http')) {
-                    handleDownload(file.url, file.filename);
+                    const a = document.createElement('a');
+                    a.href = file.url;
+                    a.download = file.filename || 'download';
+                    a.click();
                   } else {
                     alert('Invalid file URL');
                   }
@@ -986,7 +989,10 @@ const MainApp = ({ onLogout }) => {
                             className="btn-small" 
                             onClick={() => {
                               if (file.url && file.url.startsWith('http')) {
-                                handleDownload(file.url, file.filename);
+                                const a = document.createElement('a');
+                                a.href = file.url;
+                                a.download = file.filename || 'download';
+                                a.click();
                               } else {
                                 alert('Invalid file URL');
                               }
