@@ -509,10 +509,19 @@ const MainApp = ({ onLogout }) => {
                 className="btn download" 
                 onClick={() => {
                   if (file.url && file.url.startsWith('http')) {
-                    const a = document.createElement('a');
-                    a.href = file.url; // File URL
-                    a.download = file.filename || 'download'; // Suggested filename
-                    a.click(); // Trigger the download
+                    fetch(file.url)
+                      .then(res => res.blob())
+                      .then(blob => {
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = file.filename || 'download';
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        window.URL.revokeObjectURL(url);
+                      })
+                      .catch(() => window.open(file.url, '_blank'));
                   } else {
                     alert('Invalid file URL');
                   }
@@ -989,10 +998,19 @@ const MainApp = ({ onLogout }) => {
                             className="btn-small" 
                             onClick={() => {
                               if (file.url && file.url.startsWith('http')) {
-                                const a = document.createElement('a');
-                                a.href = file.url; // File URL
-                                a.download = file.filename || 'download'; // Suggested filename
-                                a.click(); // Trigger the download
+                                fetch(file.url)
+                                  .then(res => res.blob())
+                                  .then(blob => {
+                                    const url = window.URL.createObjectURL(blob);
+                                    const a = document.createElement('a');
+                                    a.href = url;
+                                    a.download = file.filename || 'download';
+                                    document.body.appendChild(a);
+                                    a.click();
+                                    document.body.removeChild(a);
+                                    window.URL.revokeObjectURL(url);
+                                  })
+                                  .catch(() => window.open(file.url, '_blank'));
                               } else {
                                 alert('Invalid file URL');
                               }
@@ -1015,10 +1033,33 @@ const MainApp = ({ onLogout }) => {
                 {retrieveLoading ? 'Searching…' : 'Retrieve'}
               </button>
             ) : (
-              <button className="retrieve-btn" onClick={() => {
-                setRetrievedFiles([]);
-                setRetrieveError("");
-              }}>Search Again</button>
+              <>
+                <button className="retrieve-btn" onClick={async () => {
+                  const validFiles = retrievedFiles.filter(f => f.url && f.url.startsWith('http'));
+                  if (validFiles.length === 0) return alert('No valid files to download');
+                  
+                  for (const file of validFiles) {
+                    await fetch(file.url)
+                      .then(res => res.blob())
+                      .then(blob => {
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = file.filename || 'download';
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        window.URL.revokeObjectURL(url);
+                      })
+                      .catch(err => console.error('Download failed:', err));
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                  }
+                }}>Download All</button>
+                <button className="retrieve-btn" onClick={() => {
+                  setRetrievedFiles([]);
+                  setRetrieveError("");
+                }}>Search Again</button>
+              </>
             )}
             <button className="cancel" onClick={() => { 
               setIsRetrieveOpen(false); 
