@@ -346,6 +346,35 @@ const MainApp = ({ onLogout }) => {
     }
   };
 
+  const handleDownloadAll = async () => {
+    if (uploadedFiles.length === 0) {
+      return alert("No files available for download.");
+    }
+
+    try {
+      const response = await fetch("http://localhost:5000/api/download-zip", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ files: uploadedFiles }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to download files.");
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "files.zip";
+      a.click();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Download error:", err);
+      alert("Failed to download files.");
+    }
+  };
+
   const StorageBlock = () => {
     const percentage = getStoragePercentage();
     const remaining = getRemainingStorageGB();
