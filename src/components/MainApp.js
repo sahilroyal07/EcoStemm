@@ -830,13 +830,10 @@ const MainApp = ({ onLogout }) => {
   );
 
   const TextUploadModal = React.memo(() => {
-    const handleTextChange = useCallback((e) => {
-      debouncedSetTextContent(e.target.value, setTextContent);
-    }, []);
-
-    const debouncedSetTextContent = debounce((value, setTextContent) => {
-      setTextContent(value);
-    }, 300);
+    const handleTextChange = (e) => {
+      console.log("Text input value:", e.target.value);
+      setTextContent(e.target.value);
+    };
 
     return (
       <div className="modal">
@@ -884,56 +881,6 @@ const MainApp = ({ onLogout }) => {
   });
 
   const RetrieveModal = () => {
-    const inputRef = useRef(null);
-
-    const handleRetrieveClick = async () => {
-      const code = inputRef.current?.value || "";
-      if (!code) return alert("Please enter an access code!");
-      
-      setRetrieveCode(code);
-      
-      try {
-        setRetrieveLoading(true);
-        setRetrieveError("");
-        const filesFound = await getFilesByCode(code);
-        
-        const fileArray = Array.isArray(filesFound) ? filesFound : [];
-        
-        const newRecent = fileArray.map((f) => {
-          const fileUrl = f?.url || f?.secure_url || null;
-          console.log('Retrieved file URL:', fileUrl, 'for file:', f?.filename);
-          return {
-            ...f,
-            code: code,
-            filename: f?.filename || f?.public_id || 'Unknown file',
-            url: fileUrl,
-            content: f?.content || null,
-            type: f?.type || f?.resource_type || 'file',
-            size: f?.size || f?.bytes || 0,
-            sizeMB: f?.size ? (f.size / (1024 * 1024)).toFixed(2) : (f?.bytes ? (f.bytes / (1024 * 1024)).toFixed(2) : '0')
-          };
-        });
-        
-        setRetrievedFiles(newRecent);
-        
-        setRecentFiles((r) => {
-          const combined = [...newRecent, ...r];
-          const seen = new Set();
-          return combined.filter((it) => {
-            if (!it.url && !it.content) return false;
-            const key = it.url || it.content || it.filename;
-            if (seen.has(key)) return false;
-            seen.add(key);
-            return true;
-          });
-        });
-      } catch (err) {
-        setRetrieveError(err.message || "No content found for this code.");
-      } finally {
-        setRetrieveLoading(false);
-      }
-    };
-
     return (
       <div className="modal">
         <div className="modal-content retrieve-modal">
@@ -941,7 +888,6 @@ const MainApp = ({ onLogout }) => {
           <div className="modal-body">
             <label className="label" htmlFor="retrieve-input">Enter access code</label>
             <input 
-              ref={inputRef}
               id="retrieve-input"
               className="retrieve-input"
               type="text" 
@@ -954,124 +900,18 @@ const MainApp = ({ onLogout }) => {
               autoComplete="off"
             />
             {retrieveError && <div className="error">{retrieveError}</div>}
-            
             {retrievedFiles.length > 0 && (
               <div className="retrieved-files">
                 <h4>Retrieved Files ({retrievedFiles.length})</h4>
                 {retrievedFiles.map((file, i) => (
                   <div key={i} className="retrieved-file">
                     <div className="file-info">
-                      <span className="file-icon">{file.type === 'text' ? '📝' : getFileIcon(file.filename || '')}</span>
-                      <div className="file-details">
-                        <div className="file-name">{file.type === 'text' ? 'Shared Text' : file.filename}</div>
-                        <div className="file-size">{file.type === 'text' ? `${file.content?.length || 0} chars` : `${(file.size / (1024*1024)).toFixed(2)} MB`}</div>
-                      </div>
-                    </div>
-                    <div className="file-actions">
-                      {file.type === 'text' ? (
-                        <>
-                          <button className="btn-small" onClick={() => {
-                            navigator.clipboard.writeText(file.content);
-                            alert('Text copied!');
-                          }}>Copy</button>
-                          <button className="btn-small" onClick={() => {
-                            const blob = new Blob([file.content], { type: 'text/plain' });
-                            const url = URL.createObjectURL(blob);
-                            const a = document.createElement('a');
-                            a.href = url;
-                            a.download = 'shared-text.txt';
-                            a.click();
-                            URL.revokeObjectURL(url);
-                          }}>Download</button>
-                        </>
-                      ) : (
-                        <>
-                          <button 
-                            className="btn-small" 
-                            onClick={() => {
-                              if (file.url && file.url.startsWith('http')) {
-                                window.open(file.url, '_blank', 'noopener,noreferrer');
-                              } else {
-                                alert('Invalid file URL');
-                              }
-                            }}
-                            disabled={!file.url || !file.url.startsWith('http')}
-                          >
-                            View
-                          </button>
-                          <button 
-                            className="btn-small" 
-                            onClick={() => {
-                              if (file.url && file.url.startsWith('http')) {
-                                fetch(file.url)
-                                  .then(res => res.blob())
-                                  .then(blob => {
-                                    const url = window.URL.createObjectURL(blob);
-                                    const a = document.createElement('a');
-                                    a.href = url;
-                                    a.download = file.filename || 'download';
-                                    document.body.appendChild(a);
-                                    a.click();
-                                    document.body.removeChild(a);
-                                    window.URL.revokeObjectURL(url);
-                                  })
-                                  .catch(() => window.open(file.url, '_blank'));
-                              } else {
-                                alert('Invalid file URL');
-                              }
-                            }}
-                            disabled={!file.url || !file.url.startsWith('http')}
-                          >
-                            Download
-                          </button>
-                        </>
-                      )}
+                      <span>{file.filename}</span>
                     </div>
                   </div>
                 ))}
               </div>
             )}
-          </div>
-          <div className="modal-actions">
-            {retrievedFiles.length === 0 ? (
-              <button className="retrieve-btn" onClick={handleRetrieveClick} disabled={retrieveLoading}>
-                {retrieveLoading ? 'Searching…' : 'Retrieve'}
-              </button>
-            ) : (
-              <>
-                <button className="retrieve-btn" onClick={async () => {
-                  const validFiles = retrievedFiles.filter(f => f.url && f.url.startsWith('http'));
-                  if (validFiles.length === 0) return alert('No valid files to download');
-                  
-                  for (const file of validFiles) {
-                    await fetch(file.url)
-                      .then(res => res.blob())
-                      .then(blob => {
-                        const url = window.URL.createObjectURL(blob);
-                        const a = document.createElement('a');
-                        a.href = url;
-                        a.download = file.filename || 'download';
-                        document.body.appendChild(a);
-                        a.click();
-                        document.body.removeChild(a);
-                        window.URL.revokeObjectURL(url);
-                      })
-                      .catch(err => console.error('Download failed:', err));
-                    await new Promise(resolve => setTimeout(resolve, 500));
-                  }
-                }}>Download All</button>
-                <button className="retrieve-btn" onClick={() => {
-                  setRetrievedFiles([]);
-                  setRetrieveError("");
-                }}>Search Again</button>
-              </>
-            )}
-            <button className="cancel" onClick={() => { 
-              setIsRetrieveOpen(false); 
-              setRetrieveError(""); 
-              setRetrieveCode("");
-              setRetrievedFiles([]);
-            }}>Close</button>
           </div>
         </div>
       </div>
