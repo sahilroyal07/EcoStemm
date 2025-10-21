@@ -907,6 +907,10 @@ const MainApp = ({ onLogout }) => {
       });
     };
 
+    const handleRetrieveCodeChange = useCallback((e) => {
+      setRetrieveCode(e.target.value.toUpperCase().slice(0, 6));
+    }, []);
+
     return (
       <div className="modal">
         <div className="modal-content retrieve-modal">
@@ -940,9 +944,7 @@ const MainApp = ({ onLogout }) => {
               type="text" 
               placeholder="e.g. 7BL29Y"
               value={retrieveCode}
-              onChange={(e) => {
-                setRetrieveCode(e.target.value.toUpperCase().slice(0, 6));
-              }}
+              onChange={handleRetrieveCodeChange}
               maxLength="6"
               autoComplete="off"
             />
