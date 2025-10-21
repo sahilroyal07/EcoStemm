@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Upload, Star, Clock, Download, File, MoreVertical, HardDrive, Zap, Home, User, Settings } from "lucide-react";
 import { uploadToCloudinary, registerUpload, getFilesByCode } from "../services/fileService";
@@ -6,6 +6,7 @@ import api from "../services/api";
 import HomePage from "./HomePage";
 import QRCode from 'qrcode';
 import { BrowserMultiFormatReader } from '@zxing/library';
+import debounce from "lodash.debounce";
 
 const MainApp = ({ onLogout }) => {
   const [currentView, setCurrentView] = useState('home');
@@ -829,9 +830,13 @@ const MainApp = ({ onLogout }) => {
   );
 
   const TextUploadModal = React.memo(() => {
-    const handleTextChange = React.useCallback((e) => {
-      setTextContent(e.target.value);
+    const handleTextChange = useCallback((e) => {
+      debouncedSetTextContent(e.target.value, setTextContent);
     }, []);
+
+    const debouncedSetTextContent = debounce((value, setTextContent) => {
+      setTextContent(value);
+    }, 300);
 
     return (
       <div className="modal">
