@@ -1,6 +1,6 @@
 import axios from "axios";
 import getConfig from "../config/environment";
-import crypto from "crypto";
+import crypto from "../utils/crypto";
 
 const config = getConfig();
 const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/${config.cloudinaryCloudName}/upload`;
