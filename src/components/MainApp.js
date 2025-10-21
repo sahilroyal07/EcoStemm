@@ -885,9 +885,9 @@ const MainApp = ({ onLogout }) => {
               className="retrieve-input"
               type="text" 
               placeholder="e.g. 7BL29Y"
-              defaultValue={retrieveCode}
+              value={retrieveCode}
               onChange={(e) => {
-                e.target.value = e.target.value.toUpperCase().slice(0, 6);
+                setRetrieveCode(e.target.value.toUpperCase().slice(0, 6));
               }}
               maxLength="6"
               autoComplete="off"
@@ -905,6 +905,26 @@ const MainApp = ({ onLogout }) => {
                 ))}
               </div>
             )}
+          </div>
+          <div className="modal-actions">
+            <button 
+              className="retrieve-btn" 
+              onClick={handleRetrieve} 
+              disabled={!retrieveCode || retrieveCode.length !== 6 || retrieveLoading}
+            >
+              {retrieveLoading ? 'Retrieving...' : 'Retrieve Files'}
+            </button>
+            <button 
+              className="cancel" 
+              onClick={() => { 
+                setIsRetrieveOpen(false); 
+                setRetrieveCode(''); 
+                setRetrieveError('');
+                setRetrievedFiles([]);
+              }}
+            >
+              {retrievedFiles.length > 0 ? 'Close' : 'Cancel'}
+            </button>
           </div>
         </div>
       </div>
