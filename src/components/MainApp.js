@@ -874,10 +874,64 @@ const MainApp = ({ onLogout }) => {
   );
 
   const RetrieveModal = () => {
+    const handleDownloadAllRetrieved = async () => {
+      if (retrievedFiles.length === 0) return;
+      
+      // Download all files one by one
+      retrievedFiles.forEach((file, index) => {
+        setTimeout(() => {
+          if (file.type === 'text') {
+            const blob = new Blob([file.content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'shared-text.txt';
+            a.click();
+            URL.revokeObjectURL(url);
+          } else if (file.url && file.url.startsWith('http')) {
+            fetch(file.url)
+              .then(res => res.blob())
+              .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = file.filename || 'download';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+              })
+              .catch(() => window.open(file.url, '_blank'));
+          }
+        }, index * 500); // Stagger downloads by 500ms
+      });
+    };
+
     return (
       <div className="modal">
         <div className="modal-content retrieve-modal">
-          <div className="modal-header"><h3>Retrieve Content</h3></div>
+          <div className="modal-header">
+            <h3>Retrieve Content</h3>
+            {retrievedFiles.length > 0 && (
+              <button 
+                className="download-all-btn"
+                onClick={handleDownloadAllRetrieved}
+                style={{
+                  marginLeft: 'auto',
+                  padding: '8px 16px',
+                  background: '#10b981',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '500'
+                }}
+              >
+                📥 Download All ({retrievedFiles.length})
+              </button>
+            )}
+          </div>
           <div className="modal-body">
             <label className="label" htmlFor="retrieve-input">Enter access code</label>
             <input 
@@ -897,9 +951,92 @@ const MainApp = ({ onLogout }) => {
               <div className="retrieved-files">
                 <h4>Retrieved Files ({retrievedFiles.length})</h4>
                 {retrievedFiles.map((file, i) => (
-                  <div key={i} className="retrieved-file">
+                  <div key={i} className="retrieved-file-card">
                     <div className="file-info">
-                      <span>{file.filename}</span>
+                      <div className="file-icon-type">
+                        {file.type === 'text' ? '📝' : getFileIcon(file.filename || '')}
+                      </div>
+                      <div className="file-details">
+                        <div className="file-name-text">
+                          {file.type === 'text' ? 'Shared Text' : file.filename}
+                        </div>
+                        <div className="file-size-text">
+                          {file.type === 'text' 
+                            ? `${file.content?.length || 0} characters` 
+                            : `${file.sizeMB || '0'} MB`
+                          }
+                        </div>
+                      </div>
+                    </div>
+                    <div className="file-actions">
+                      {file.type === 'text' ? (
+                        <>
+                          <button 
+                            className="btn-view"
+                            onClick={() => {
+                              navigator.clipboard.writeText(file.content);
+                              alert('Text copied to clipboard!');
+                            }}
+                          >
+                            📋 Copy
+                          </button>
+                          <button 
+                            className="btn-download"
+                            onClick={() => {
+                              const blob = new Blob([file.content], { type: 'text/plain' });
+                              const url = URL.createObjectURL(blob);
+                              const a = document.createElement('a');
+                              a.href = url;
+                              a.download = 'shared-text.txt';
+                              a.click();
+                              URL.revokeObjectURL(url);
+                            }}
+                          >
+                            📥 Download
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button 
+                            className="btn-view"
+                            onClick={() => {
+                              if (file.url && file.url.startsWith('http')) {
+                                window.open(file.url, '_blank', 'noopener,noreferrer');
+                              } else {
+                                alert('Invalid file URL');
+                              }
+                            }}
+                            disabled={!file.url || !file.url.startsWith('http')}
+                          >
+                            👁️ View
+                          </button>
+                          <button 
+                            className="btn-download"
+                            onClick={() => {
+                              if (file.url && file.url.startsWith('http')) {
+                                fetch(file.url)
+                                  .then(res => res.blob())
+                                  .then(blob => {
+                                    const url = window.URL.createObjectURL(blob);
+                                    const a = document.createElement('a');
+                                    a.href = url;
+                                    a.download = file.filename || 'download';
+                                    document.body.appendChild(a);
+                                    a.click();
+                                    document.body.removeChild(a);
+                                    window.URL.revokeObjectURL(url);
+                                  })
+                                  .catch(() => window.open(file.url, '_blank'));
+                              } else {
+                                alert('Invalid file URL');
+                              }
+                            }}
+                            disabled={!file.url || !file.url.startsWith('http')}
+                          >
+                            📥 Download
+                          </button>
+                        </>
+                      )}
                     </div>
                   </div>
                 ))}

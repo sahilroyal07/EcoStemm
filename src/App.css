@@ -686,6 +686,79 @@
   gap: 12px;
 }
 
+.retrieved-files {
+  margin-top: 20px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.retrieved-files h4 {
+  margin-bottom: 12px;
+  color: #1e293b;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.retrieved-file-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s ease;
+}
+
+.retrieved-file-card:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.retrieved-file-card .file-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.retrieved-file-card .file-icon-type {
+  font-size: 24px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.retrieved-file-card .file-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.retrieved-file-card .file-name-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1e293b;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.retrieved-file-card .file-size-text {
+  font-size: 12px;
+  color: #64748b;
+}
+
 .retrieved-file {
   display: flex;
   align-items: center;
@@ -698,7 +771,56 @@
   border: 1px solid #eef2ff;
 }
 
-.file-actions { display:flex; gap:8px; align-items:center; }
+.file-actions { 
+  display: flex; 
+  gap: 8px; 
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.file-actions .btn-view,
+.file-actions .btn-download {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.file-actions .btn-view {
+  background: #f0f9ff;
+  color: #0284c7;
+  border: 1px solid #bae6fd;
+}
+
+.file-actions .btn-view:hover {
+  background: #e0f2fe;
+  border-color: #7dd3fc;
+}
+
+.file-actions .btn-view:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.file-actions .btn-download {
+  background: #10b981;
+  color: white;
+}
+
+.file-actions .btn-download:hover {
+  background: #059669;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.file-actions .btn-download:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 
 /* small buttons used for view/download */
 .btn {
