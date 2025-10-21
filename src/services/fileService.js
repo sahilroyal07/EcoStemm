@@ -1,5 +1,6 @@
 import axios from "axios";
 import getConfig from "../config/environment";
+import crypto from "crypto";
 
 const config = getConfig();
 const CLOUDINARY_URL = `https://api.cloudinary.com/v1_1/${config.cloudinaryCloudName}/upload`;
@@ -66,5 +67,32 @@ export const getFilesByCode = async (code) => {
     return res.data.files || [];
   } catch (err) {
     throw new Error(err.response?.data?.error || "No files found for this code.");
+  }
+};
+
+export const getCloudinaryStorageUsage = async () => {
+  try {
+    const timestamp = Math.round(new Date().getTime() / 1000);
+    const signature = crypto
+      .createHash("sha256")
+      .update(`timestamp=${timestamp}${config.cloudinaryApiSecret}`)
+      .digest("hex");
+
+    const res = await axios.get(
+      `https://api.cloudinary.com/v1_1/${config.cloudinaryCloudName}/usage`,
+      {
+        params: {
+          timestamp,
+          signature,
+          api_key: config.cloudinaryApiKey,
+        },
+      }
+    );
+
+    return res.data;
+  } catch (err) {
+    throw new Error(
+      err.response?.data?.error?.message || "Failed to fetch Cloudinary storage usage."
+    );
   }
 };
