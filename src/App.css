@@ -7,9 +7,6 @@
   font-family: "Poppins", sans-serif;
 }
 
-/* Load a serif display for the brand name */
-@import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@700&family=Inter:wght@300;400;600&display=swap');
-
 /* Beautiful Top Navigation */
 .top-nav {
   width: 100%;
