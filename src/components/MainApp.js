@@ -829,56 +829,49 @@ const MainApp = ({ onLogout }) => {
     </div>
   );
 
-  const TextUploadModal = React.memo(() => {
-    const handleTextChange = (e) => {
-      console.log("Text input value:", e.target.value);
-      setTextContent(e.target.value);
-    };
-
-    return (
-      <div className="modal">
-        <div className="modal-content text-upload-modal">
-          <div className="modal-header">
-            <h3>Share Text Content</h3>
-          </div>
-          <div className="modal-body">
-            <label className="label" htmlFor="text-content">Enter or paste your text:</label>
-            <textarea
-              id="text-content"
-              className="text-content-input"
-              placeholder="Paste your text, notes, links, or any content here..."
-              value={textContent}
-              onChange={handleTextChange}
-              rows={8}
-              autoComplete="off"
-              spellCheck="false"
-            />
-            <div className="text-info">
-              {textContent.length} characters
-            </div>
-          </div>
-          <div className="modal-actions">
-            <button 
-              className="upload-btn" 
-              onClick={handleTextUpload} 
-              disabled={!textContent.trim() || isUploading}
-            >
-              {isUploading ? 'Sharing...' : 'Share Text'}
-            </button>
-            <button 
-              className="cancel" 
-              onClick={() => { 
-                setIsTextUploadOpen(false); 
-                setTextContent(''); 
-              }}
-            >
-              Cancel
-            </button>
+  const TextUploadModal = () => (
+    <div className="modal">
+      <div className="modal-content text-upload-modal">
+        <div className="modal-header">
+          <h3>Share Text Content</h3>
+        </div>
+        <div className="modal-body">
+          <label className="label" htmlFor="text-content">Enter or paste your text:</label>
+          <textarea
+            id="text-content"
+            className="text-content-input"
+            placeholder="Paste your text, notes, links, or any content here..."
+            value={textContent}
+            onChange={(e) => setTextContent(e.target.value)}
+            rows={8}
+            autoComplete="off"
+            spellCheck="false"
+          />
+          <div className="text-info">
+            {textContent.length} characters
           </div>
         </div>
+        <div className="modal-actions">
+          <button 
+            className="upload-btn" 
+            onClick={handleTextUpload} 
+            disabled={!textContent.trim() || isUploading}
+          >
+            {isUploading ? 'Sharing...' : 'Share Text'}
+          </button>
+          <button 
+            className="cancel" 
+            onClick={() => { 
+              setIsTextUploadOpen(false); 
+              setTextContent(''); 
+            }}
+          >
+            Cancel
+          </button>
+        </div>
       </div>
-    );
-  });
+    </div>
+  );
 
   const RetrieveModal = () => {
     return (
