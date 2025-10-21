@@ -1,5 +1,5 @@
 body {
-  background-color: #f4f4f9;
+  background-color: #f8f9fa; /* Light gray for a clean background */
   font-family: Arial, Helvetica, sans-serif;
   margin: 0;
   padding: 0;
@@ -15,13 +15,13 @@ body {
 }
 
 h1 {
-  color: #2c3e50;
+  color: #212529; /* Dark gray for headings */
   font-size: 32px;
   margin-bottom: 30px;
 }
 
 .card {
-  background-color: white;
+  background-color: #ffffff; /* White for cards */
   border-radius: 12px;
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
   width: 100%;
@@ -32,7 +32,7 @@ h1 {
 }
 
 .card h3 {
-  color: #34495e;
+  color: #495057; /* Medium gray for subheadings */
   margin-bottom: 10px;
 }
 
@@ -41,17 +41,17 @@ input[type="text"] {
   width: 90%;
   margin: 10px 0;
   padding: 10px;
-  border: 1px solid #ccc;
+  border: 1px solid #ced4da; /* Light gray for input borders */
   border-radius: 8px;
   outline: none;
 }
 
 input[type="text"]:focus {
-  border-color: #3498db;
+  border-color: #6c757d; /* Slightly darker gray for focus */
 }
 
 button {
-  background-color: #3498db;
+  background-color: #007bff; /* Professional blue for buttons */
   color: white;
   border: none;
   padding: 10px 15px;
@@ -63,12 +63,12 @@ button {
 }
 
 button:hover {
-  background-color: #2980b9;
+  background-color: #0056b3; /* Darker blue for hover */
 }
 
 .message {
   margin-top: 15px;
-  color: #333;
+  color: #212529; /* Dark gray for messages */
   font-weight: bold;
 }
 
@@ -76,6 +76,6 @@ button:hover {
   margin-top: 10px;
   display: inline-block;
   text-decoration: none;
-  color: #1e90ff;
+  color: #007bff; /* Blue for links */
   font-weight: bold;
 }
