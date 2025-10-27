@@ -9,19 +9,19 @@ const SERVER_URL = config.serverUrl;
 
 export const uploadToCloudinary = async (file, code) => {
   try {
-    console.log('Starting upload:', { filename: file.name, size: file.size, code });
+    console.log('Starting direct upload:', { filename: file.name, size: file.size, code });
     
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('code', code);
-
-    console.log('Server URL:', SERVER_URL);
+    formData.append('upload_preset', UPLOAD_PRESET);
+    formData.append('tags', `code_${code}`);
+    formData.append('context', `access_code=${code}`);
     
-    const res = await axios.post(`${SERVER_URL}/api/upload`, formData, {
+    const res = await axios.post(CLOUDINARY_URL, formData, {
       headers: { 
         'Content-Type': 'multipart/form-data'
       },
-      timeout: 300000, // 5 minutes timeout
+      timeout: 300000,
       onUploadProgress: (progressEvent) => {
         const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
         console.log(`Upload progress: ${percentCompleted}%`);
@@ -31,24 +31,19 @@ export const uploadToCloudinary = async (file, code) => {
     console.log('Upload successful:', res.data);
     
     return {
-      url: res.data.url,
+      url: res.data.secure_url,
       public_id: res.data.public_id,
       filename: file.name,
       size: file.size
     };
   } catch (err) {
-    console.error('Upload error details:', {
-      message: err.message,
-      response: err.response?.data,
-      status: err.response?.status,
-      url: `${SERVER_URL}/api/upload`
-    });
+    console.error('Upload error:', err.response?.data || err.message);
     
     if (err.code === 'ECONNABORTED') {
       throw new Error('Upload timeout - file too large or slow connection');
     }
     
-    throw new Error(err.response?.data?.error || err.response?.data?.message || err.message || "Upload failed");
+    throw new Error(err.response?.data?.error?.message || err.message || "Upload failed");
   }
 };
 
