@@ -631,7 +631,7 @@ const MainApp = ({ onLogout }) => {
             id="file-input-hidden"
             type="file"
             multiple
-            accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.txt,.rtf,.csv,.xlsx,.xls,.ppt,.pptx,.zip,.rar,.7z,.tar,.gz"
+accept="*"
             onChange={(e) => {
               console.log("Files selected:", e.target.files);
               onFilesChosen(e.target.files);

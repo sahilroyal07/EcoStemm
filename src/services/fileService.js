@@ -9,15 +9,13 @@ const SERVER_URL = config.serverUrl;
 
 export const uploadToCloudinary = async (file, code) => {
   try {
-    console.log('Starting direct upload:', { filename: file.name, size: file.size, code });
+    console.log('Starting upload:', { filename: file.name, size: file.size, code });
     
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('upload_preset', UPLOAD_PRESET);
-    formData.append('tags', `code_${code}`);
-    formData.append('context', `access_code=${code}`);
-    
-    const res = await axios.post(CLOUDINARY_URL, formData, {
+    formData.append('code', code);
+
+    const res = await axios.post(`${SERVER_URL}/api/upload`, formData, {
       headers: { 
         'Content-Type': 'multipart/form-data'
       },
@@ -31,7 +29,7 @@ export const uploadToCloudinary = async (file, code) => {
     console.log('Upload successful:', res.data);
     
     return {
-      url: res.data.secure_url,
+      url: res.data.url,
       public_id: res.data.public_id,
       filename: file.name,
       size: file.size
@@ -43,7 +41,7 @@ export const uploadToCloudinary = async (file, code) => {
       throw new Error('Upload timeout - file too large or slow connection');
     }
     
-    throw new Error(err.response?.data?.error?.message || err.message || "Upload failed");
+    throw new Error(err.response?.data?.error || err.message || "Upload failed");
   }
 };
 
