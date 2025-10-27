@@ -907,9 +907,7 @@ accept="*"
       });
     };
 
-    const handleRetrieveCodeChange = useCallback((e) => {
-      setRetrieveCode(e.target.value.toUpperCase().slice(0, 6));
-    }, []);
+    const inputRef = useRef(null);
 
     return (
       <div className="modal">
@@ -939,12 +937,17 @@ accept="*"
           <div className="modal-body">
             <label className="label" htmlFor="retrieve-input">Enter access code</label>
             <input 
+              ref={inputRef}
               id="retrieve-input"
               className="retrieve-input"
               type="text" 
               placeholder="e.g. 7BL29Y"
-              value={retrieveCode}
-              onChange={handleRetrieveCodeChange}
+              defaultValue={retrieveCode}
+              onInput={(e) => {
+                const val = e.target.value.toUpperCase().slice(0, 6);
+                e.target.value = val;
+                setRetrieveCode(val);
+              }}
               maxLength="6"
               autoComplete="off"
             />
