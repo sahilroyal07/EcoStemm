@@ -944,9 +944,7 @@ accept="*"
               placeholder="e.g. 7BL29Y"
               defaultValue={retrieveCode}
               onInput={(e) => {
-                const val = e.target.value.toUpperCase().slice(0, 6);
-                e.target.value = val;
-                setRetrieveCode(val);
+                e.target.value = e.target.value.toUpperCase().slice(0, 6);
               }}
               maxLength="6"
               autoComplete="off"
@@ -1051,8 +1049,12 @@ accept="*"
           <div className="modal-actions">
             <button 
               className="retrieve-btn" 
-              onClick={handleRetrieve} 
-              disabled={!retrieveCode || retrieveCode.length !== 6 || retrieveLoading}
+              onClick={() => {
+                const code = inputRef.current?.value || '';
+                setRetrieveCode(code);
+                handleRetrieve();
+              }} 
+              disabled={retrieveLoading}
             >
               {retrieveLoading ? 'Retrieving...' : 'Retrieve Files'}
             </button>
